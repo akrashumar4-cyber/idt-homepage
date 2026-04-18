@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>International Diamond Trade — The World's Diamond Trade, Verified.</title>
+<meta name="description" content="Connect with 1,200+ verified suppliers across 68 countries. The B2B platform built for serious diamond traders.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#06080F;
+  --card:#0D1020;
+  --gold:#C9A84C;
+  --gold-l:#E8D5A3;
+  --txt:#E8E8F0;
+  --muted:#8A8FAA;
+  --green:#4CAF7D;
+}
+html{scroll-behavior:auto}
+body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;overflow-x:hidden}
+h1,h2,h3,h4{font-family:'Cormorant Garamond',serif;font-weight:300}
+a{text-decoration:none}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  padding:22px 60px;
+  display:flex;align-items:center;justify-content:space-between;
+  transition:background .4s,backdrop-filter .4s,border-color .4s;
+  border-bottom:1px solid transparent;
+}
+nav.scrolled{
+  background:rgba(6,8,15,.88);
+  backdrop-filter:blur(20px);
+  border-color:rgba(201,168,76,.12);
+}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-text{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;letter-spacing:.08em;color:var(--txt)}
+.logo-text span{color:var(--gold)}
+.nav-links{display:flex;align-items:center;gap:40px;list-style:none}
+.nav-links a{color:var(--muted);font-size:13px;font-weight:500;letter-spacing:.05em;position:relative;transition:color .3s}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--gold);transition:width .3s}
+.nav-links a:hover{color:var(--txt)}
+.nav-links a:hover::after{width:100%}
+.btn-nav{
+  background:linear-gradient(135deg,var(--gold),#A8882F);
+  color:#06080F;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;padding:11px 26px;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+  transition:all .3s;
+}
+.btn-nav:hover{background:linear-gradient(135deg,var(--gold-l),var(--gold));box-shadow:0 8px 32px rgba(201,168,76,.35);transform:translateY(-1px)}
+
+/* ── HERO ── */
+#hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden}
+#particle-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+#diamond-canvas{position:absolute;top:0;right:0;width:58%;height:100%;z-index:2}
+.grid-overlay{
+  position:absolute;inset:0;z-index:0;
+  background-image:linear-gradient(rgba(201,168,76,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,.025) 1px,transparent 1px);
+  background-size:80px 80px;
+}
+.hero-vignette{
+  position:absolute;inset:0;z-index:3;
+  background:linear-gradient(90deg,rgba(6,8,15,1) 30%,rgba(6,8,15,.6) 60%,transparent 85%);
+  pointer-events:none;
+}
+.hero-content{position:relative;z-index:10;padding:120px 60px 80px;max-width:700px}
+.eyebrow{display:flex;align-items:center;gap:14px;margin-bottom:36px;opacity:0}
+.eyebrow-line{width:36px;height:1px;background:var(--gold);flex-shrink:0}
+.eyebrow-text{font-size:11px;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:var(--gold)}
+
+#hero-title{font-size:clamp(44px,5.5vw,84px);line-height:1.06;letter-spacing:-.015em;margin-bottom:28px}
+.word{display:inline-block;overflow:hidden;margin-right:.22em}
+.letter{display:inline-block;transform:translateY(110%);opacity:0}
+
+.hero-sub{font-size:17px;line-height:1.75;color:var(--muted);max-width:500px;margin-bottom:48px;opacity:0;transform:translateY(20px)}
+.hero-ctas{display:flex;gap:16px;flex-wrap:wrap;opacity:0;transform:translateY(20px)}
+
+.btn-primary{
+  background:linear-gradient(135deg,var(--gold),#A8882F);color:#06080F;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;letter-spacing:.07em;
+  padding:15px 34px;display:inline-flex;align-items:center;gap:10px;
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+  transition:all .3s;
+}
+.btn-primary:hover{background:linear-gradient(135deg,var(--gold-l),var(--gold));transform:translateY(-2px);box-shadow:0 14px 40px rgba(201,168,76,.4)}
+.btn-secondary{
+  background:transparent;color:var(--txt);
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:.07em;
+  padding:15px 34px;border:1px solid rgba(201,168,76,.32);
+  display:inline-flex;align-items:center;gap:10px;transition:all .3s;
+}
+.btn-secondary:hover{border-color:var(--gold);background:rgba(201,168,76,.07);color:var(--gold-l);transform:translateY(-2px)}
+
+.scroll-hint{
+  position:absolute;bottom:44px;left:60px;z-index:10;
+  display:flex;align-items:center;gap:14px;opacity:0;
+}
+.scroll-bar{width:56px;height:1px;background:linear-gradient(to right,transparent,var(--gold));position:relative;overflow:hidden}
+.scroll-bar::after{content:'';position:absolute;inset:0;background:var(--gold-l);transform:translateX(-100%);animation:scanline 2s ease-in-out infinite}
+@keyframes scanline{to{transform:translateX(200%)}}
+.scroll-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+
+/* ── STATS ── */
+#stats{
+  padding:90px 60px;
+  border-top:1px solid rgba(201,168,76,.1);
+  border-bottom:1px solid rgba(201,168,76,.1);
+}
+.stats-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:40px}
+.stat{text-align:center;position:relative}
+.stat+.stat::before{content:'';position:absolute;left:0;top:20%;height:60%;width:1px;background:rgba(201,168,76,.13)}
+.stat-num{
+  font-family:'Cormorant Garamond',serif;font-size:clamp(42px,5vw,68px);
+  font-weight:300;color:var(--gold);display:block;line-height:1;margin-bottom:12px;
+}
+.stat-lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+
+/* ── SECTION COMMON ── */
+.s-eyebrow{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.s-eyebrow-line{width:28px;height:1px;background:var(--gold);flex-shrink:0}
+.s-eyebrow-text{font-size:10px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--gold)}
+.s-title{font-size:clamp(34px,3.8vw,54px);line-height:1.15;letter-spacing:-.01em;margin-bottom:18px}
+.s-body{font-size:15px;line-height:1.8;color:var(--muted)}
+
+.reveal{opacity:0;transform:translateY(36px);transition:opacity .9s ease,transform .9s ease}
+.reveal.in{opacity:1;transform:none}
+
+/* ── HOW IT WORKS ── */
+#hiw{padding:120px 60px;max-width:1320px;margin:0 auto}
+.hiw-head{text-align:center;margin-bottom:80px}
+.hiw-head .s-eyebrow{justify-content:center}
+.hiw-head .s-body{max-width:560px;margin:0 auto}
+
+.steps{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:start;gap:0}
+.step-arrow{display:flex;justify-content:center;padding-top:56px}
+.step-arrow-inner{width:100%;height:1px;background:linear-gradient(to right,rgba(201,168,76,.5),rgba(201,168,76,.1));position:relative}
+.step-arrow-inner::after{content:'›';position:absolute;right:-6px;top:-11px;color:var(--gold);font-size:20px;opacity:.7}
+
+.step{
+  padding:40px 36px;background:var(--card);
+  border:1px solid rgba(201,168,76,.1);position:relative;overflow:hidden;
+  transition:border-color .3s,transform .3s;
+}
+.step:hover{border-color:rgba(201,168,76,.35);transform:translateY(-5px)}
+.step::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,var(--gold),transparent)}
+.step-num{font-family:'Cormorant Garamond',serif;font-size:64px;font-weight:300;color:rgba(201,168,76,.1);line-height:1;display:block;margin-bottom:20px}
+.step-icon{width:44px;height:44px;border:1px solid rgba(201,168,76,.28);display:flex;align-items:center;justify-content:center;margin-bottom:22px}
+.step-icon svg{width:22px;height:22px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.step h3{font-size:20px;font-weight:500;margin-bottom:14px;color:var(--txt)}
+.step p{font-size:13px;line-height:1.85;color:var(--muted)}
+
+/* ── SPLIT SECTIONS ── */
+.split{padding:100px 60px;max-width:1320px;margin:0 auto}
+.split-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.split-grid.flip{direction:rtl}
+.split-grid.flip>*{direction:ltr}
+
+.split-visual{
+  aspect-ratio:4/3;background:var(--card);
+  border:1px solid rgba(201,168,76,.1);position:relative;overflow:hidden;
+}
+.sv-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(201,168,76,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,.035) 1px,transparent 1px);background-size:36px 36px}
+.sv-content{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:36px}
+
+.blist{list-style:none;margin:28px 0 36px;display:flex;flex-direction:column;gap:18px}
+.bitem{display:flex;gap:14px;align-items:flex-start}
+.bicon{width:22px;height:22px;flex-shrink:0;margin-top:3px}
+.bicon svg{width:100%;height:100%;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.btext strong{display:block;font-size:14px;font-weight:500;color:var(--txt);margin-bottom:3px}
+.btext span{font-size:13px;color:var(--muted);line-height:1.65}
+
+/* ── TRUST ── */
+#trust{padding:100px 60px;text-align:center;position:relative}
+#trust::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 50%,rgba(13,16,32,.7),transparent);pointer-events:none}
+.trust-head{position:relative;margin-bottom:60px}
+.trust-head .s-eyebrow{justify-content:center}
+.trust-head .s-body{max-width:560px;margin:0 auto}
+
+.badges{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-bottom:56px;position:relative}
+.badge{
+  padding:28px 36px;background:var(--card);border:1px solid rgba(201,168,76,.1);
+  display:flex;flex-direction:column;align-items:center;gap:12px;min-width:150px;
+  transition:all .3s;position:relative;overflow:hidden;
+}
+.badge::after{content:'';position:absolute;inset:0;background:radial-gradient(circle,rgba(201,168,76,.06),transparent);opacity:0;transition:opacity .3s}
+.badge:hover{border-color:rgba(201,168,76,.35);transform:translateY(-4px)}
+.badge:hover::after{opacity:1}
+.badge-abbr{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:var(--gold);letter-spacing:.1em}
+.badge-name{font-size:10px;color:var(--muted);letter-spacing:.06em;text-align:center;line-height:1.6;max-width:120px}
+.badge-status{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--green);font-weight:500}
+.badge-status::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0}
+
+.trust-quote{
+  position:relative;max-width:620px;margin:0 auto;
+  font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;font-style:italic;
+  line-height:1.65;color:var(--muted);
+}
+.trust-quote strong{color:var(--gold);font-style:normal}
+
+/* ── CTA BANNER ── */
+#cta{padding:100px 60px;text-align:center;position:relative;overflow:hidden}
+.cta-glow{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(201,168,76,.07),transparent);pointer-events:none}
+.cta-border{position:absolute;inset:24px;border:1px solid rgba(201,168,76,.09);pointer-events:none}
+#cta>div{position:relative;z-index:1}
+#cta .s-eyebrow{justify-content:center}
+#cta .s-title{max-width:660px;margin:0 auto 18px;text-align:center}
+#cta .s-body{max-width:520px;margin:0 auto 48px;text-align:center}
+.cta-actions{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
+
+/* ── FOOTER ── */
+footer{background:#020408;border-top:1px solid rgba(201,168,76,.1);padding:80px 60px 40px}
+.footer-grid{max-width:1200px;margin:0 auto 60px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:60px}
+.footer-brand p{font-size:13px;line-height:1.9;color:var(--muted);margin-top:18px;max-width:300px}
+.f-col h4{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:22px}
+.f-links{list-style:none;display:flex;flex-direction:column;gap:13px}
+.f-links a{color:var(--muted);font-size:13px;transition:color .3s}
+.f-links a:hover{color:var(--gold-l)}
+.footer-bottom{max-width:1200px;margin:0 auto;padding-top:28px;border-top:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;align-items:center}
+.footer-bottom p{font-size:12px;color:var(--muted)}
+.f-live{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){
+  nav{padding:18px 30px}
+  .nav-links{display:none}
+  .hero-content{padding:120px 30px 80px}
+  #diamond-canvas{width:100%;opacity:.25}
+  .hero-vignette{background:rgba(6,8,15,.7)}
+  .steps{grid-template-columns:1fr;gap:20px}
+  .step-arrow{display:none}
+  .split-grid{grid-template-columns:1fr;gap:40px}
+  .split-grid.flip{direction:ltr}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .stat+.stat::before{display:none}
+  #stats,#hiw,.split,#trust,#cta{padding:80px 30px}
+  footer{padding:60px 30px 40px}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:40px}
+}
+@media(max-width:600px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .footer-grid{grid-template-columns:1fr}
+  .footer-bottom{flex-direction:column;gap:14px;text-align:center}
+  .badges{flex-direction:column;align-items:center}
+  .cta-actions{flex-direction:column;align-items:center}
+  .hero-ctas{flex-direction:column}
+}
+
+/* ── GOLD SHIMMER ── */
+.shimmer{
+  background:linear-gradient(90deg,var(--gold) 0%,var(--gold-l) 40%,var(--gold) 80%);
+  background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:shimmer 5s linear infinite;
+}
+@keyframes shimmer{to{background-position:200% center}}
+
+/* market ticker row */
+.ticker-row{display:flex;justify-content:space-between;align-items:center;padding:13px 18px;background:rgba(201,168,76,.05);border:1px solid rgba(201,168,76,.12);transition:background .2s}
+.ticker-row:hover{background:rgba(201,168,76,.1)}
+.ticker-label{font-size:12px;color:var(--muted)}
+.ticker-price{font-family:'Cormorant Garamond',serif;color:var(--gold);font-size:19px}
+.ticker-verified{font-size:10px;color:var(--green);margin-top:2px}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="/" class="logo">
+    <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
+      <polygon points="18,2 34,12 34,24 18,34 2,24 2,12" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
+      <polygon points="18,7 27,13 27,23 18,29 9,23 9,13" stroke="#C9A84C" stroke-width=".7" fill="none" opacity=".45"/>
+      <line x1="18" y1="2" x2="9" y2="13" stroke="#C9A84C" stroke-width=".7" opacity=".3"/>
+      <line x1="18" y1="2" x2="27" y2="13" stroke="#C9A84C" stroke-width=".7" opacity=".3"/>
+      <line x1="2" y1="12" x2="9" y2="13" stroke="#C9A84C" stroke-width=".7" opacity=".3"/>
+      <line x1="34" y1="12" x2="27" y2="13" stroke="#C9A84C" stroke-width=".7" opacity=".3"/>
+      <line x1="2" y1="24" x2="9" y2="23" stroke="#C9A84C" stroke-width=".7" opacity=".3"/>
+      <line x1="34" y1="24" x2="27" y2="23" stroke="#C9A84C" stroke-width=".7" opacity=".3"/>
+    </svg>
+    <span class="logo-text">IDT <span>— International Diamond Trade</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#hiw">How It Works</a></li>
+    <li><a href="#suppliers">For Suppliers</a></li>
+    <li><a href="#buyers">For Buyers</a></li>
+  </ul>
+  <a href="https://app.internationaldiamondtrade.com" class="btn-nav">Access Marketplace</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="grid-overlay"></div>
+  <canvas id="particle-canvas"></canvas>
+  <canvas id="diamond-canvas"></canvas>
+  <div class="hero-vignette"></div>
+
+  <div class="hero-content">
+    <div class="eyebrow" id="eyebrow">
+      <div class="eyebrow-line"></div>
+      <span class="eyebrow-text">B2B Diamond Platform · Est. 2024</span>
+    </div>
+
+    <h1 id="hero-title" aria-label="The World's Diamond Trade, Verified."></h1>
+
+    <p class="hero-sub" id="hero-sub">
+      Connect with 1,200+ verified suppliers across 68 countries. The B2B platform built for serious diamond traders.
+    </p>
+
+    <div class="hero-ctas" id="hero-ctas">
+      <a href="https://pages.internationaldiamondtrade.com/apply-supplier" class="btn-primary">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+        Join as Supplier
+      </a>
+      <a href="https://pages.internationaldiamondtrade.com/register-buyer" class="btn-secondary">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><path d="M10.5 8H5M8 5.5L10.5 8 8 10.5"/></svg>
+        Find Diamonds
+      </a>
+    </div>
+  </div>
+
+  <div class="scroll-hint" id="scroll-hint">
+    <div class="scroll-bar"></div>
+    <span class="scroll-label">Scroll</span>
+  </div>
+</section>
+
+<!-- STATS -->
+<section id="stats">
+  <div class="stats-grid">
+    <div class="stat">
+      <span class="stat-num" data-target="2.4" data-prefix="$" data-suffix="B" data-dec="1">$0B</span>
+      <span class="stat-lbl">Total Volume Traded</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" data-target="68" data-suffix="" data-dec="0">0</span>
+      <span class="stat-lbl">Countries Represented</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" data-target="1200" data-suffix="+" data-dec="0">0</span>
+      <span class="stat-lbl">Verified Traders</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" data-target="99.8" data-suffix="%" data-dec="1">0%</span>
+      <span class="stat-lbl">Verification Rate</span>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="hiw" style="padding:120px 60px;max-width:1320px;margin:0 auto">
+  <div class="hiw-head reveal">
+    <div class="s-eyebrow" style="justify-content:center">
+      <div class="s-eyebrow-line"></div>
+      <span class="s-eyebrow-text">Process</span>
+      <div class="s-eyebrow-line" style="background:linear-gradient(to right,var(--gold),transparent)"></div>
+    </div>
+    <h2 class="s-title" style="text-align:center">How It Works</h2>
+    <p class="s-body hiw-head" style="max-width:560px;text-align:center;margin:0 auto">Three steps from application to trade. Every participant is verified. Every transaction is protected.</p>
+  </div>
+
+  <div class="steps">
+    <div class="step reveal">
+      <span class="step-num">01</span>
+      <div class="step-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+      </div>
+      <h3>Apply &amp; Get Verified</h3>
+      <p>Submit your business documentation. Our compliance team verifies every applicant against GIA, IGI, and Kimberley Process standards. No anonymous trading — ever.</p>
+    </div>
+    <div class="step-arrow"><div class="step-arrow-inner"></div></div>
+    <div class="step reveal" style="transition-delay:.12s">
+      <span class="step-num">02</span>
+      <div class="step-icon">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      </div>
+      <h3>Browse &amp; Connect</h3>
+      <p>Access 14,200+ certified listings of loose diamonds, parcels, and melee. Filter by cut, carat, clarity, colour, and certification. Message suppliers directly in-platform.</p>
+    </div>
+    <div class="step-arrow"><div class="step-arrow-inner"></div></div>
+    <div class="step reveal" style="transition-delay:.24s">
+      <span class="step-num">03</span>
+      <div class="step-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <h3>Trade with Confidence</h3>
+      <p>All transactions backed by our verification framework. Track orders, manage invoices, and build long-term relationships with trusted counterparties across 68 countries.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOR SUPPLIERS -->
+<section id="suppliers" style="padding:100px 0;background:linear-gradient(180deg,transparent,rgba(13,16,32,.55),transparent)">
+  <div class="split">
+    <div class="split-grid">
+      <div class="reveal">
+        <div class="s-eyebrow"><div class="s-eyebrow-line"></div><span class="s-eyebrow-text">For Suppliers</span></div>
+        <h2 class="s-title">Reach Qualified Buyers.<br><em style="font-style:italic;color:var(--gold)">Globally.</em></h2>
+        <p class="s-body">Access a vetted network of professional buyers. No unqualified leads. Every buyer on IDT is compliance-verified and trade-ready before they ever see your inventory.</p>
+        <ul class="blist">
+          <li class="bitem">
+            <div class="bicon"><svg viewBox="0 0 24 24"><path d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+            <div class="btext"><strong>Global Verified Buyer Network</strong><span>Instant access to credentialled buyers in 68+ countries. Every buyer is KYC-verified before accessing your listings.</span></div>
+          </li>
+          <li class="bitem">
+            <div class="bicon"><svg viewBox="0 0 24 24"><path d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg></div>
+            <div class="btext"><strong>Professional Listing Tools</strong><span>Upload parcels, individual stones, and melee. Filterable listings with certification document hosting and bulk import.</span></div>
+          </li>
+          <li class="bitem">
+            <div class="bicon"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div>
+            <div class="btext"><strong>IDT Verified Badge</strong><span>Verification status signals credibility. Stand out in global search results and command buyer trust from first contact.</span></div>
+          </li>
+          <li class="bitem">
+            <div class="bicon"><svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
+            <div class="btext"><strong>Trade Analytics Dashboard</strong><span>Real-time insights on listing views, buyer engagement, and market pricing across all major diamond categories.</span></div>
+          </li>
+        </ul>
+        <a href="https://pages.internationaldiamondtrade.com/apply-supplier" class="btn-primary">Apply as Supplier</a>
+      </div>
+
+      <div class="split-visual reveal" style="transition-delay:.18s">
+        <div class="sv-grid"></div>
+        <div class="sv-content" style="gap:12px">
+          <div style="font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);opacity:.8;margin-bottom:8px">Live Market Data</div>
+          <div class="ticker-row"><div><div class="ticker-label">Round 1.00ct D/VVS1 — GIA</div></div><span class="ticker-price">$8,200</span></div>
+          <div class="ticker-row"><div><div class="ticker-label">Princess 2.00ct G/VS2 — GIA</div></div><span class="ticker-price">$11,400</span></div>
+          <div class="ticker-row"><div><div class="ticker-label">Oval 3.50ct E/VS1 — IGI</div></div><span class="ticker-price">$42,000</span></div>
+          <div class="ticker-row"><div><div class="ticker-label">Emerald 1.50ct F/VVS2 — GIA</div></div><span class="ticker-price">$9,800</span></div>
+          <div class="ticker-row"><div><div class="ticker-label">Pear 2.20ct H/SI1 — IGI</div></div><span class="ticker-price">$14,600</span></div>
+          <div style="margin-top:10px;display:flex;align-items:center;gap:8px">
+            <span class="dot"></span>
+            <span style="font-size:11px;color:var(--muted)">Updated every 15 minutes · 14,200+ listings</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOR BUYERS -->
+<section id="buyers" style="padding:100px 0">
+  <div class="split">
+    <div class="split-grid flip">
+      <div class="split-visual reveal">
+        <div class="sv-grid"></div>
+        <div class="sv-content" style="gap:10px">
+          <div style="font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);opacity:.8;margin-bottom:4px">Search Results</div>
+          <div style="display:flex;align-items:center;gap:10px;background:rgba(6,8,15,.6);border:1px solid rgba(201,168,76,.2);padding:9px 14px;margin-bottom:4px">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8A8FAA" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <span style="font-size:12px;color:var(--muted)">Round · 1.0–2.0ct · D–G · VVS–VS · GIA</span>
+          </div>
+          <div class="ticker-row" style="flex-direction:column;align-items:flex-start;gap:4px">
+            <div style="display:flex;justify-content:space-between;width:100%;align-items:center">
+              <span class="ticker-label">Round 1.21ct E/VVS2 — GIA</span>
+              <span class="ticker-price">$7,200</span>
+            </div>
+            <span class="ticker-verified">✓ IDT Verified · Mumbai, IN</span>
+          </div>
+          <div class="ticker-row" style="flex-direction:column;align-items:flex-start;gap:4px">
+            <div style="display:flex;justify-content:space-between;width:100%;align-items:center">
+              <span class="ticker-label">Round 1.54ct D/VS1 — GIA</span>
+              <span class="ticker-price">$12,800</span>
+            </div>
+            <span class="ticker-verified">✓ IDT Verified · Antwerp, BE</span>
+          </div>
+          <div class="ticker-row" style="flex-direction:column;align-items:flex-start;gap:4px">
+            <div style="display:flex;justify-content:space-between;width:100%;align-items:center">
+              <span class="ticker-label">Round 1.89ct F/VS2 — IGI</span>
+              <span class="ticker-price">$15,400</span>
+            </div>
+            <span class="ticker-verified">✓ IDT Verified · Surat, IN</span>
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:var(--muted);text-align:center">Showing 3 of 14,200+ verified listings</div>
+        </div>
+      </div>
+
+      <div class="reveal" style="transition-delay:.18s">
+        <div class="s-eyebrow"><div class="s-eyebrow-line"></div><span class="s-eyebrow-text">For Buyers</span></div>
+        <h2 class="s-title">Source Diamonds.<br><em style="font-style:italic;color:var(--gold)">Certified.</em></h2>
+        <p class="s-body">Every listing is from a verified supplier. Every stone is certified. Find exactly what you need from our global network — without the counterparty risk.</p>
+        <ul class="blist">
+          <li class="bitem">
+            <div class="bicon"><svg viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></div>
+            <div class="btext"><strong>Advanced Diamond Search</strong><span>Filter by cut, carat, colour, clarity, certification, price, and origin. 14,200+ listings across all major categories.</span></div>
+          </li>
+          <li class="bitem">
+            <div class="bicon"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>
+            <div class="btext"><strong>Verified Suppliers Only</strong><span>No unverified sellers. Every supplier has passed KYC, AML, and Kimberley Process certification before listing on IDT.</span></div>
+          </li>
+          <li class="bitem">
+            <div class="bicon"><svg viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg></div>
+            <div class="btext"><strong>Direct Supplier Messaging</strong><span>Encrypted in-platform chat. Request custom quotes, negotiate terms, and close deals without leaving IDT.</span></div>
+          </li>
+          <li class="bitem">
+            <div class="bicon"><svg viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg></div>
+            <div class="btext"><strong>Streamlined Trade Finance</strong><span>Integrated invoicing, payment tracking, and trade document management. Multi-currency across all major trading hubs.</span></div>
+          </li>
+        </ul>
+        <a href="https://pages.internationaldiamondtrade.com/register-buyer" class="btn-primary">Register as Buyer</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST -->
+<section id="about" style="padding:0">
+<section id="trust">
+  <div class="trust-head reveal">
+    <div class="s-eyebrow" style="justify-content:center">
+      <div class="s-eyebrow-line"></div>
+      <span class="s-eyebrow-text">Verification Standards</span>
+      <div class="s-eyebrow-line" style="background:linear-gradient(to right,var(--gold),transparent)"></div>
+    </div>
+    <h2 class="s-title" style="text-align:center">Every Trade, Verified.</h2>
+    <p class="s-body" style="max-width:540px;text-align:center;margin:0 auto">IDT adheres to the highest industry standards. All participants are verified against globally recognised certification frameworks before any trade occurs.</p>
+  </div>
+
+  <div class="badges">
+    <div class="badge reveal">
+      <span class="badge-abbr">GIA</span>
+      <span class="badge-name">Gemological Institute of America</span>
+      <span class="badge-status">Certified Partner</span>
+    </div>
+    <div class="badge reveal" style="transition-delay:.1s">
+      <span class="badge-abbr">IGI</span>
+      <span class="badge-name">International Gemological Institute</span>
+      <span class="badge-status">Certified Partner</span>
+    </div>
+    <div class="badge reveal" style="transition-delay:.2s">
+      <span class="badge-abbr">KP</span>
+      <span class="badge-name">Kimberley Process Certification Scheme</span>
+      <span class="badge-status">Compliant</span>
+    </div>
+    <div class="badge reveal" style="transition-delay:.3s">
+      <span class="badge-abbr">WFDB</span>
+      <span class="badge-name">World Federation of Diamond Bourses</span>
+      <span class="badge-status">Member</span>
+    </div>
+  </div>
+
+  <p class="trust-quote reveal">"The diamond trade demands <strong>absolute trust</strong>. IDT was built from the ground up to ensure every participant, every transaction, and every stone meets the highest possible standard of verification."</p>
+</section></section>
+
+<!-- CTA BANNER -->
+<section id="cta">
+  <div class="cta-glow"></div>
+  <div class="cta-border"></div>
+  <div>
+    <div class="s-eyebrow" style="justify-content:center">
+      <div class="s-eyebrow-line"></div>
+      <span class="s-eyebrow-text">Get Started</span>
+      <div class="s-eyebrow-line" style="background:linear-gradient(to right,var(--gold),transparent)"></div>
+    </div>
+    <h2 class="s-title reveal">Ready to Trade at the<br>Highest Level?</h2>
+    <p class="s-body reveal">Join 1,200+ verified suppliers and buyers already trading on IDT. Applications reviewed within 48 hours.</p>
+    <div class="cta-actions reveal">
+      <a href="https://pages.internationaldiamondtrade.com/apply-supplier" class="btn-primary">Apply as Supplier</a>
+      <a href="https://pages.internationaldiamondtrade.com/register-buyer" class="btn-secondary">Register as Buyer</a>
+      <a href="https://app.internationaldiamondtrade.com" class="btn-secondary">Browse Marketplace</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="/" class="logo">
+        <svg width="30" height="30" viewBox="0 0 36 36" fill="none">
+          <polygon points="18,2 34,12 34,24 18,34 2,24 2,12" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
+          <polygon points="18,7 27,13 27,23 18,29 9,23 9,13" stroke="#C9A84C" stroke-width=".7" fill="none" opacity=".45"/>
+        </svg>
+        <span class="logo-text">IDT</span>
+      </a>
+      <p>The world's premier B2B diamond trading platform. Connecting verified suppliers with global buyers. Dark luxury meets institutional rigour.</p>
+      <div style="margin-top:20px;display:flex;align-items:center;gap:8px">
+        <span class="dot"></span>
+        <span style="font-size:11px;color:var(--muted)">All systems operational</span>
+      </div>
+    </div>
+
+    <div class="f-col">
+      <h4>Platform</h4>
+      <ul class="f-links">
+        <li><a href="https://app.internationaldiamondtrade.com">Marketplace</a></li>
+        <li><a href="#hiw">How It Works</a></li>
+        <li><a href="#suppliers">For Suppliers</a></li>
+        <li><a href="#buyers">For Buyers</a></li>
+        <li><a href="#trust">Verification</a></li>
+      </ul>
+    </div>
+
+    <div class="f-col">
+      <h4>Apply</h4>
+      <ul class="f-links">
+        <li><a href="https://pages.internationaldiamondtrade.com/apply-supplier">Supplier Application</a></li>
+        <li><a href="https://pages.internationaldiamondtrade.com/register-buyer">Buyer Registration</a></li>
+        <li><a href="https://app.internationaldiamondtrade.com">Access Marketplace</a></li>
+      </ul>
+    </div>
+
+    <div class="f-col">
+      <h4>Company</h4>
+      <ul class="f-links">
+        <li><a href="#about">About IDT</a></li>
+        <li><a href="#">Contact</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Compliance</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>© 2024 International Diamond Trade. All rights reserved.</p>
+    <div class="f-live">
+      <span class="dot"></span>
+      <span>Live · app.internationaldiamondtrade.com</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   THREE.JS — DIAMOND WIREFRAME
+   ============================================================ */
+(function(){
+  const canvas = document.getElementById('diamond-canvas');
+  const W = ()=> canvas.offsetWidth, H = ()=> canvas.offsetHeight;
+  const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(42, W()/H(), 0.1, 100);
+  camera.position.z = 5.5;
+
+  function resize(){
+    renderer.setSize(W(), H());
+    camera.aspect = W()/H();
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  /* outer octahedron – main diamond silhouette */
+  const outerGeo = new THREE.OctahedronGeometry(1.6, 0);
+  const outerMat = new THREE.MeshBasicMaterial({color:0xC9A84C, wireframe:true, transparent:true, opacity:.55});
+  const outer = new THREE.Mesh(outerGeo, outerMat);
+  outer.scale.set(1, 1.45, 1);
+  scene.add(outer);
+
+  /* inner gem – counter-rotate */
+  const innerGeo = new THREE.OctahedronGeometry(1.0, 0);
+  const innerMat = new THREE.MeshBasicMaterial({color:0xE8D5A3, wireframe:true, transparent:true, opacity:.18});
+  const inner = new THREE.Mesh(innerGeo, innerMat);
+  inner.scale.set(1, 1.45, 1);
+  scene.add(inner);
+
+  /* icosahedron halo */
+  const icoGeo = new THREE.IcosahedronGeometry(1.95, 0);
+  const icoMat = new THREE.MeshBasicMaterial({color:0xC9A84C, wireframe:true, transparent:true, opacity:.06});
+  const ico = new THREE.Mesh(icoGeo, icoMat);
+  scene.add(ico);
+
+  /* refraction lines */
+  const rGroup = new THREE.Group();
+  for(let i=0;i<22;i++){
+    const geo = new THREE.BufferGeometry();
+    const a1 = (i/22)*Math.PI*2, a2 = a1 + Math.PI*(0.5+Math.random()*.8);
+    const r1=.3+Math.random()*1.3, r2=.3+Math.random()*1.3;
+    const y1=(Math.random()-.5)*3.4, y2=(Math.random()-.5)*3.4;
+    const verts = new Float32Array([
+      Math.cos(a1)*r1, y1, Math.sin(a1)*r1,
+      Math.cos(a2)*r2, y2, Math.sin(a2)*r2,
+    ]);
+    geo.setAttribute('position', new THREE.BufferAttribute(verts,3));
+    const mat = new THREE.LineBasicMaterial({color:0xE8D5A3, transparent:true, opacity:.06+Math.random()*.14});
+    rGroup.add(new THREE.Line(geo, mat));
+  }
+  scene.add(rGroup);
+
+  /* mouse influence */
+  let mx=0, my=0;
+  document.addEventListener('mousemove', e=>{
+    mx = (e.clientX/innerWidth - .5)*2;
+    my = (e.clientY/innerHeight - .5)*2;
+  });
+
+  let t=0;
+  (function tick(){
+    requestAnimationFrame(tick);
+    t += .004;
+    outer.rotation.y = t + mx*.25;
+    outer.rotation.x = Math.sin(t*.35)*.12 + my*.12;
+    inner.rotation.y = -t*.65 + mx*.18;
+    inner.rotation.x = Math.sin(t*.5)*.18;
+    ico.rotation.y = t*.18; ico.rotation.x = t*.09;
+    rGroup.rotation.y = t*.35 + mx*.15;
+    outerMat.opacity = .42 + Math.sin(t*.9)*.14;
+    innerMat.opacity = .12 + Math.sin(t*1.3)*.07;
+    renderer.render(scene, camera);
+  })();
+})();
+
+/* ============================================================
+   PARTICLES
+   ============================================================ */
+(function(){
+  const c = document.getElementById('particle-canvas');
+  const ctx = c.getContext('2d');
+  const resize = ()=>{ c.width=innerWidth; c.height=innerHeight; };
+  resize(); window.addEventListener('resize', resize);
+
+  const pts = Array.from({length:90}, ()=>({
+    x: Math.random()*innerWidth,
+    y: Math.random()*innerHeight,
+    r: .5+Math.random()*1.8,
+    spd: .2+Math.random()*.55,
+    drift: (Math.random()-.5)*.25,
+    op: .1+Math.random()*.45,
+    tw: Math.random()*Math.PI*2,
+  }));
+
+  (function draw(){
+    requestAnimationFrame(draw);
+    ctx.clearRect(0,0,c.width,c.height);
+    pts.forEach(p=>{
+      p.y -= p.spd; p.x += p.drift; p.tw += .018;
+      if(p.y < -8){ p.y=c.height+8; p.x=Math.random()*c.width; }
+      if(p.x<-8||p.x>c.width+8) p.x=Math.random()*c.width;
+      const a = p.op*(0.55+Math.sin(p.tw)*.45);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(201,168,76,${a})`;
+      ctx.fill();
+      if(p.r>1.4){
+        ctx.strokeStyle=`rgba(232,213,163,${a*.55})`;
+        ctx.lineWidth=.4;
+        ctx.beginPath();
+        ctx.moveTo(p.x-p.r*2.2, p.y); ctx.lineTo(p.x+p.r*2.2, p.y);
+        ctx.moveTo(p.x, p.y-p.r*2.2); ctx.lineTo(p.x, p.y+p.r*2.2);
+        ctx.stroke();
+      }
+    });
+  })();
+})();
+
+/* ============================================================
+   LENIS
+   ============================================================ */
+const lenis = new Lenis({duration:1.35, easing:t=>Math.min(1,1.001-Math.pow(2,-10*t))});
+(function raf(t){ lenis.raf(t); requestAnimationFrame(raf); })(0);
+
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('scrolled', scrollY>60);
+});
+
+/* smooth anchors */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click', e=>{
+    const t = document.querySelector(a.getAttribute('href'));
+    if(t){ e.preventDefault(); lenis.scrollTo(t,{offset:-80,duration:1.8}); }
+  });
+});
+
+/* ============================================================
+   GSAP — HERO TITLE LETTER REVEAL
+   ============================================================ */
+gsap.registerPlugin(ScrollTrigger);
+
+const titleEl = document.getElementById('hero-title');
+const raw = "The World's Diamond Trade, Verified.";
+const words = raw.split(' ');
+
+titleEl.innerHTML = words.map((w,wi)=>{
+  const letters = [...w].map(l=>
+    `<span class="letter">${l}</span>`
+  ).join('');
+  const style = wi===words.length-1 ? ' style="color:var(--gold);font-style:italic"' : '';
+  return `<span class="word"${style}>${letters}</span>`;
+}).join(' ');
+
+gsap.to('#eyebrow', {opacity:1, y:0, duration:.9, delay:.3, ease:'power3.out'});
+gsap.to(titleEl.querySelectorAll('.letter'), {
+  y:0, opacity:1, duration:.65, stagger:.028, delay:.55, ease:'power4.out'
+});
+gsap.to('#hero-sub',  {opacity:1, y:0, duration:.9, delay:1.55, ease:'power3.out'});
+gsap.to('#hero-ctas', {opacity:1, y:0, duration:.9, delay:1.8,  ease:'power3.out'});
+gsap.to('#scroll-hint',{opacity:1,      duration:.9, delay:2.6,  ease:'power3.out'});
+
+/* section titles */
+document.querySelectorAll('.s-title').forEach(el=>{
+  gsap.fromTo(el,{opacity:0,y:28},{opacity:1,y:0,duration:.95,ease:'power3.out',
+    scrollTrigger:{trigger:el, start:'top 87%', toggleActions:'play none none none'}
+  });
+});
+
+/* ============================================================
+   STAT COUNTERS
+   ============================================================ */
+function countUp(el){
+  const target=parseFloat(el.dataset.target);
+  const prefix=el.dataset.prefix||'';
+  const suffix=el.dataset.suffix||'';
+  const dec=parseInt(el.dataset.dec)||0;
+  const dur=2000, start=performance.now();
+  (function step(now){
+    const p=Math.min((now-start)/dur,1);
+    const ease=1-Math.pow(1-p,3);
+    el.textContent = prefix+(ease*target).toFixed(dec)+suffix;
+    if(p<1) requestAnimationFrame(step);
+    else el.textContent = prefix+target.toFixed(dec)+suffix;
+  })(start);
+}
+
+new IntersectionObserver((entries,obs)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.querySelectorAll('.stat-num[data-target]').forEach(countUp);
+      obs.unobserve(e.target);
+    }
+  });
+},{threshold:.3}).observe(document.getElementById('stats'));
+
+/* ============================================================
+   SCROLL REVEAL
+   ============================================================ */
+const revealObs = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); });
+},{threshold:.12, rootMargin:'0px 0px -50px 0px'});
+document.querySelectorAll('.reveal').forEach(el=> revealObs.observe(el));
+</script>
+</body>
+</html>
