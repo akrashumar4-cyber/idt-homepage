@@ -387,9 +387,12 @@ function setLoading(btnId, loading) {
 });
 
 // ── Role-based redirect ──
-async function redirectByRole(userId) {
-  const { data } = await db.from('profiles').select('role').eq('id', userId).single();
-  const role = data?.role;
+async function redirectByRole(userId, session) {
+  let role = session?.user?.user_metadata?.role;
+  if (!role) {
+    const { data } = await db.from('profiles').select('role').eq('id', userId).single();
+    role = data?.role;
+  }
   if (role === 'admin') {
     window.location.replace('https://app.internationaldiamondtrade.com/admin');
   } else if (role === 'supplier') {
@@ -432,7 +435,7 @@ document.getElementById('signin-form').addEventListener('submit', async e => {
     return;
   }
 
-  await redirectByRole(data.user.id);
+  await redirectByRole(data.user.id, data.session);
 });
 
 // ── Forgot password toggle ──
@@ -492,7 +495,7 @@ document.getElementById('newpass-form').addEventListener('submit', async e => {
   }
 
   showMsg('newpass-msg', 'Password updated! Redirecting…', 'success');
-  setTimeout(() => redirectByRole(data.user.id), 1200);
+  setTimeout(() => redirectByRole(data.user.id, { user: data.user }), 1200);
 });
 </script>
 </body>
