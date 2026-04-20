@@ -390,7 +390,9 @@ function setLoading(btnId, loading) {
 async function redirectByRole(userId) {
   const { data } = await db.from('profiles').select('role').eq('id', userId).single();
   const role = data?.role;
-  if (role === 'supplier') {
+  if (role === 'admin') {
+    window.location.replace('https://app.internationaldiamondtrade.com/admin');
+  } else if (role === 'supplier') {
     window.location.replace('https://app.internationaldiamondtrade.com/supplier');
   } else if (role === 'buyer') {
     window.location.replace('https://app.internationaldiamondtrade.com/buyer');
