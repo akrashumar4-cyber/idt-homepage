@@ -389,11 +389,11 @@ function setLoading(btnId, loading) {
 // ── Role-based redirect ──
 function redirectByRole(role) {
   if (role === 'admin') {
-    window.location.replace('https://app.internationaldiamondtrade.com/admin');
+    window.location.replace('https://internationaldiamondtrade.com/admin');
   } else if (role === 'supplier') {
-    window.location.replace('https://app.internationaldiamondtrade.com/supplier');
+    window.location.replace('https://internationaldiamondtrade.com/supplier');
   } else if (role === 'buyer') {
-    window.location.replace('https://app.internationaldiamondtrade.com/buyer');
+    window.location.replace('https://internationaldiamondtrade.com/buyer');
   } else {
     showMsg('signin-msg', 'Your account is pending approval. You will receive an email once your access is confirmed.', 'error');
     setLoading('signin-submit', false);
