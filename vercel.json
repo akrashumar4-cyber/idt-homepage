@@ -2,6 +2,9 @@
   "rewrites": [
     { "source": "/join",         "destination": "/join.html"         },
     { "source": "/login",        "destination": "/login.html"        },
-    { "source": "/set-password", "destination": "/set-password.html" }
+    { "source": "/set-password", "destination": "/set-password.html" },
+    { "source": "/admin",        "destination": "/admin.html"        },
+    { "source": "/buyer",        "destination": "/buyer.html"        },
+    { "source": "/supplier",     "destination": "/supplier.html"     }
   ]
 }

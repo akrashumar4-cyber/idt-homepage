@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buyer Dashboard — International Diamond Trade</title>
+<meta name="description" content="Your IDT buyer dashboard. Browse diamonds, manage enquiries and saved suppliers.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg0: #06080F;
+  --bg1: #0D1020;
+  --bg2: #131726;
+  --bg3: #181d2e;
+  --gold: #C9A84C;
+  --gold-light: #E8D5A3;
+  --gold-dim: rgba(201,168,76,0.10);
+  --gold-border: rgba(201,168,76,0.22);
+  --text: #E8E8F0;
+  --text-muted: #8A8FAA;
+  --border-sub: rgba(255,255,255,0.06);
+  --radius: 14px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg0);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  /* hidden until auth check passes */
+  visibility: hidden;
+}
+
+body.ready { visibility: visible; }
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 40% at 10% 0%, rgba(201,168,76,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 90% 100%, rgba(201,168,76,0.035) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Header ── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  background: rgba(6,8,15,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-sub);
+  padding: 0 40px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  text-decoration: none;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.logo-diamond { width: 34px; height: 34px; }
+
+.logo-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--gold-light);
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  gap: 3px;
+}
+
+.logo-sub {
+  font-size: 0.55rem;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.badge-buyer {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  border-radius: 20px;
+  padding: 4px 12px;
+}
+
+.btn-logout {
+  background: transparent;
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 400;
+  padding: 7px 16px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-logout:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ── Page body ── */
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 52px 40px 96px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Welcome ── */
+.welcome-eyebrow {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+
+.welcome-heading {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.9rem, 3.5vw, 2.8rem);
+  font-weight: 400;
+  color: var(--gold-light);
+  letter-spacing: 0.01em;
+  margin-bottom: 6px;
+}
+
+.welcome-sub {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 300;
+  margin-bottom: 52px;
+}
+
+/* ── Section label ── */
+.section-label {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-sub);
+}
+
+/* ── Cards grid ── */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.card {
+  background: var(--bg1);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius);
+  padding: 36px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201,168,76,0.055) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.card:hover {
+  border-color: rgba(201,168,76,0.5);
+  box-shadow: 0 0 36px rgba(201,168,76,0.1);
+  transform: translateY(-3px);
+}
+.card:hover::before { opacity: 1; }
+
+.card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.card-icon svg { width: 22px; height: 22px; stroke: var(--gold); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+.card-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--gold-light);
+  letter-spacing: 0.01em;
+}
+
+.card-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 300;
+  line-height: 1.6;
+  flex: 1;
+}
+
+.card-soon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--bg2);
+  border: 1px solid var(--border-sub);
+  border-radius: 20px;
+  padding: 4px 12px;
+  width: fit-content;
+}
+.card-soon::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  opacity: 0.6;
+}
+
+/* ── Divider ── */
+.divider { height: 1px; background: var(--border-sub); margin: 48px 0 36px; }
+
+@media (max-width: 860px) {
+  .cards { grid-template-columns: 1fr 1fr; }
+  .header { padding: 0 20px; }
+  .page  { padding: 36px 20px 72px; }
+}
+@media (max-width: 560px) {
+  .cards { grid-template-columns: 1fr; }
+  .badge-buyer { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="/" class="nav-logo">
+    <svg class="logo-diamond" viewBox="0 0 40 40" fill="none">
+      <polygon points="20,2 38,14 38,26 20,38 2,26 2,14" stroke="#C9A84C" stroke-width="1" fill="rgba(201,168,76,0.05)"/>
+      <polygon points="20,8 32,16 32,24 20,32 8,24 8,16" stroke="#C9A84C" stroke-width="0.5" fill="rgba(201,168,76,0.08)"/>
+      <line x1="20" y1="2" x2="20" y2="38" stroke="#C9A84C" stroke-width="0.4" opacity="0.5"/>
+      <line x1="2" y1="14" x2="38" y2="26" stroke="#C9A84C" stroke-width="0.4" opacity="0.5"/>
+      <line x1="2" y1="26" x2="38" y2="14" stroke="#C9A84C" stroke-width="0.4" opacity="0.5"/>
+      <circle cx="20" cy="20" r="2" fill="#C9A84C" opacity="0.7"/>
+    </svg>
+    <span class="logo-text">IDT
+      <span class="logo-sub">International Diamond Trade</span>
+    </span>
+  </a>
+
+  <div class="header-right">
+    <span class="badge-buyer">Buyer</span>
+    <button class="btn-logout" id="logout-btn">Sign Out</button>
+  </div>
+</header>
+
+<main class="page">
+
+  <div class="welcome-eyebrow">Dashboard</div>
+  <h1 class="welcome-heading" id="welcome-heading">Welcome</h1>
+  <p class="welcome-sub">Here's your IDT buyer portal. More features are on the way.</p>
+
+  <div class="section-label">Your Tools</div>
+
+  <div class="cards">
+
+    <!-- Browse Diamonds -->
+    <div class="card">
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24">
+          <polygon points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5"/>
+          <line x1="2" y1="8.5" x2="22" y2="8.5"/>
+          <line x1="12" y1="2" x2="12" y2="22"/>
+          <line x1="2" y1="15.5" x2="22" y2="15.5"/>
+        </svg>
+      </div>
+      <div class="card-title">Browse Diamonds</div>
+      <p class="card-desc">Search and filter certified natural and lab-grown diamonds from verified global suppliers.</p>
+      <span class="card-soon">Coming Soon</span>
+    </div>
+
+    <!-- My Enquiries -->
+    <div class="card">
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </div>
+      <div class="card-title">My Enquiries</div>
+      <p class="card-desc">Track the status of your sourcing requests and supplier responses in one place.</p>
+      <span class="card-soon">Coming Soon</span>
+    </div>
+
+    <!-- Saved Suppliers -->
+    <div class="card">
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+      </div>
+      <div class="card-title">Saved Suppliers</div>
+      <p class="card-desc">Keep track of your preferred suppliers and build lasting trade relationships.</p>
+      <span class="card-soon">Coming Soon</span>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+const SUPABASE_URL  = 'https://hlmdkhixdrowbnxgbuvy.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsbWRraGl4ZHJvd2JueGdidXZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NDIzMjQsImV4cCI6MjA5MjAxODMyNH0.2QOyrIHHReHH2prRCP78UcO1I3oCqauKpn_0pjpP7W8';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+async function handleLogout() {
+  await db.auth.signOut();
+  window.location.replace('https://internationaldiamondtrade.com/login.html');
+}
+
+document.getElementById('logout-btn').addEventListener('click', handleLogout);
+
+async function getSessionWithRetry() {
+  for (let i = 0; i < 10; i++) {
+    const { data: { session } } = await db.auth.getSession();
+    if (session) return session;
+    await new Promise(r => setTimeout(r, 200));
+  }
+  return null;
+}
+
+async function getRoleWithRetry(session) {
+  for (let i = 0; i < 10; i++) {
+    let role = session.user.user_metadata?.role;
+
+    if (!role) {
+      const { data: profile } = await db
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single();
+
+      role = profile?.role;
+    }
+
+    if (role) return role;
+
+    await new Promise(r => setTimeout(r, 200));
+  }
+  return null;
+}
+
+(async () => {
+  const session = await getSessionWithRetry();
+
+  if (!session) {
+    window.location.replace('https://internationaldiamondtrade.com/login.html');
+    return;
+  }
+
+  const role = await getRoleWithRetry(session);
+
+  if (!role) {
+    window.location.replace('https://internationaldiamondtrade.com/login.html');
+    return;
+  }
+
+  const { data: profile } = await db
+    .from('profiles')
+    .select('company_name')
+    .eq('id', session.user.id)
+    .single();
+
+  if (role && window.location.pathname === '/buyer.html' && role === 'supplier') {
+    window.location.replace('/supplier.html');
+    return;
+  }
+
+  if (role && window.location.pathname === '/buyer.html' && role === 'admin') {
+    window.location.replace('/admin.html');
+    return;
+  }
+
+  const name = profile?.company_name || session.user.email || 'Guest';
+  document.getElementById('welcome-heading').textContent = 'Welcome, ' + name;
+
+  document.body.classList.add('ready');
+})();
+</script>
+</body>
+</html>

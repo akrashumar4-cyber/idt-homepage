@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — International Diamond Trade</title>
+<meta name="description" content="IDT admin dashboard. Manage users, roles, and platform activity.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg0: #06080F;
+  --bg1: #0D1020;
+  --bg2: #131726;
+  --bg3: #181d2e;
+  --gold: #C9A84C;
+  --gold-light: #E8D5A3;
+  --gold-dim: rgba(201,168,76,0.10);
+  --gold-border: rgba(201,168,76,0.22);
+  --text: #E8E8F0;
+  --text-muted: #8A8FAA;
+  --border-sub: rgba(255,255,255,0.06);
+  --radius: 14px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg0);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  visibility: hidden;
+}
+
+body.ready { visibility: visible; }
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 40% at 10% 0%, rgba(201,168,76,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 90% 100%, rgba(201,168,76,0.035) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Header ── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  background: rgba(6,8,15,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-sub);
+  padding: 0 40px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  text-decoration: none;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.logo-diamond { width: 34px; height: 34px; }
+
+.logo-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--gold-light);
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  gap: 3px;
+}
+
+.logo-sub {
+  font-size: 0.55rem;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.badge-admin {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  border-radius: 20px;
+  padding: 4px 12px;
+}
+
+.btn-logout {
+  background: transparent;
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 400;
+  padding: 7px 16px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-logout:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ── Page body ── */
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 52px 40px 96px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Welcome ── */
+.welcome-eyebrow {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+
+.welcome-heading {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.9rem, 3.5vw, 2.8rem);
+  font-weight: 400;
+  color: var(--gold-light);
+  letter-spacing: 0.01em;
+  margin-bottom: 6px;
+}
+
+.welcome-sub {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 300;
+  margin-bottom: 52px;
+}
+
+/* ── Section label ── */
+.section-label {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-sub);
+}
+
+/* ── Stats row ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 48px;
+}
+
+.stat-card {
+  background: var(--bg1);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201,168,76,0.055) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.stat-card:hover { border-color: rgba(201,168,76,0.5); box-shadow: 0 0 36px rgba(201,168,76,0.1); }
+.stat-card:hover::before { opacity: 1; }
+
+.stat-label {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.stat-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.4rem;
+  font-weight: 400;
+  color: var(--gold-light);
+  line-height: 1;
+}
+
+.stat-value.loading {
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ── Users table ── */
+.table-wrap {
+  background: var(--bg1);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.table-scroll { overflow-x: auto; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+thead tr {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--gold-border);
+}
+
+thead th {
+  text-align: left;
+  padding: 14px 20px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--border-sub);
+  transition: background 0.15s;
+}
+
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(255,255,255,0.025); }
+
+tbody td {
+  padding: 14px 20px;
+  color: var(--text);
+  vertical-align: middle;
+}
+
+.company-name {
+  font-weight: 500;
+  color: var(--gold-light);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.email-cell {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.role-badge.buyer   { color: #7EC8E3; background: rgba(126,200,227,0.1); border: 1px solid rgba(126,200,227,0.22); }
+.role-badge.supplier { color: #A8D5A2; background: rgba(168,213,162,0.1); border: 1px solid rgba(168,213,162,0.22); }
+.role-badge.admin   { color: var(--gold); background: var(--gold-dim); border: 1px solid var(--gold-border); }
+.role-badge.pending { color: var(--text-muted); background: rgba(138,143,170,0.1); border: 1px solid rgba(138,143,170,0.2); }
+
+.date-cell {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+/* ── Role dropdown ── */
+.role-select {
+  background: var(--bg2);
+  border: 1px solid var(--gold-border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23C9A84C' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+  min-width: 110px;
+}
+.role-select:hover, .role-select:focus { border-color: var(--gold); outline: none; }
+
+.role-select.saving { opacity: 0.5; pointer-events: none; }
+
+/* ── Empty / loading states ── */
+.table-empty {
+  text-align: center;
+  padding: 56px 20px;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.divider { height: 1px; background: var(--border-sub); margin: 48px 0 36px; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 999;
+  background: var(--bg2);
+  border: 1px solid var(--gold-border);
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 0.84rem;
+  color: var(--gold-light);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  transform: translateY(80px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  pointer-events: none;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.error { border-color: rgba(239,68,68,0.4); color: #FCA5A5; }
+
+@media (max-width: 900px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .header { padding: 0 20px; }
+  .page { padding: 36px 20px 72px; }
+}
+@media (max-width: 560px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .badge-admin { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="/" class="nav-logo">
+    <svg class="logo-diamond" viewBox="0 0 40 40" fill="none">
+      <polygon points="20,2 38,14 38,26 20,38 2,26 2,14" stroke="#C9A84C" stroke-width="1" fill="rgba(201,168,76,0.05)"/>
+      <polygon points="20,8 32,16 32,24 20,32 8,24 8,16" stroke="#C9A84C" stroke-width="0.5" fill="rgba(201,168,76,0.08)"/>
+      <line x1="20" y1="2" x2="20" y2="38" stroke="#C9A84C" stroke-width="0.4" opacity="0.5"/>
+      <line x1="2" y1="14" x2="38" y2="26" stroke="#C9A84C" stroke-width="0.4" opacity="0.5"/>
+      <line x1="2" y1="26" x2="38" y2="14" stroke="#C9A84C" stroke-width="0.4" opacity="0.5"/>
+      <circle cx="20" cy="20" r="2" fill="#C9A84C" opacity="0.7"/>
+    </svg>
+    <span class="logo-text">IDT
+      <span class="logo-sub">International Diamond Trade</span>
+    </span>
+  </a>
+
+  <div class="header-right">
+    <span class="badge-admin">Admin</span>
+    <button class="btn-logout" id="logout-btn">Sign Out</button>
+  </div>
+</header>
+
+<main class="page">
+
+  <div class="welcome-eyebrow">Dashboard</div>
+  <h1 class="welcome-heading">Admin Panel</h1>
+  <p class="welcome-sub">Manage users, roles, and platform activity across IDT.</p>
+
+  <div class="section-label">Platform Stats</div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total Users</div>
+      <div class="stat-value loading" id="stat-total">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Buyers</div>
+      <div class="stat-value loading" id="stat-buyers">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Suppliers</div>
+      <div class="stat-value loading" id="stat-suppliers">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Pending (No Role)</div>
+      <div class="stat-value loading" id="stat-pending">—</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-label">All Users</div>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Email</th>
+            <th>Current Role</th>
+            <th>Joined</th>
+            <th>Change Role</th>
+          </tr>
+        </thead>
+        <tbody id="users-tbody">
+          <tr><td colspan="5" class="table-empty">Loading users…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL  = 'https://hlmdkhixdrowbnxgbuvy.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsbWRraGl4ZHJvd2JueGdidXZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NDIzMjQsImV4cCI6MjA5MjAxODMyNH0.2QOyrIHHReHH2prRCP78UcO1I3oCqauKpn_0pjpP7W8';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ── Toast ──
+let toastTimer;
+function showToast(msg, isError = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.toggle('error', isError);
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ── Format date ──
+function fmtDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+// ── Role badge HTML ──
+function roleBadge(role) {
+  const r = role || 'pending';
+  const label = r.charAt(0).toUpperCase() + r.slice(1);
+  return `<span class="role-badge ${r}">${label}</span>`;
+}
+
+// ── Role dropdown ──
+function roleSelect(userId, currentRole) {
+  const roles = ['buyer', 'supplier', 'admin'];
+  const opts = roles.map(r =>
+    `<option value="${r}" ${r === currentRole ? 'selected' : ''}>${r.charAt(0).toUpperCase() + r.slice(1)}</option>`
+  ).join('');
+  return `<select class="role-select" data-uid="${userId}" onchange="changeRole(this)">${opts}</select>`;
+}
+
+// ── Change role ──
+async function changeRole(select) {
+  const uid = select.dataset.uid;
+  const newRole = select.value;
+  select.classList.add('saving');
+
+  const { error } = await db
+    .from('profiles')
+    .update({ role: newRole })
+    .eq('id', uid);
+
+  select.classList.remove('saving');
+
+  if (error) {
+    showToast('Failed to update role.', true);
+  } else {
+    // Update badge in same row
+    const row = select.closest('tr');
+    row.querySelector('.role-badge').outerHTML;
+    const badgeCell = row.querySelector('td:nth-child(3)');
+    badgeCell.innerHTML = roleBadge(newRole);
+    showToast('Role updated successfully.');
+  }
+}
+
+// ── Load stats ──
+async function loadStats() {
+  const { data, error } = await db.from('profiles').select('role');
+  if (error || !data) return;
+
+  const total     = data.length;
+  const buyers    = data.filter(p => p.role === 'buyer').length;
+  const suppliers = data.filter(p => p.role === 'supplier').length;
+  const pending   = data.filter(p => !p.role || (p.role !== 'buyer' && p.role !== 'supplier' && p.role !== 'admin')).length;
+
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    el.textContent = val;
+    el.classList.remove('loading');
+  };
+
+  set('stat-total',     total);
+  set('stat-buyers',    buyers);
+  set('stat-suppliers', suppliers);
+  set('stat-pending',   pending);
+}
+
+// ── Load users table ──
+async function loadUsers() {
+  const tbody = document.getElementById('users-tbody');
+
+  const { data, error } = await db
+    .from('profiles')
+    .select('id, company_name, role, created_at, email')
+    .order('created_at', { ascending: false });
+
+  if (error || !data) {
+    tbody.innerHTML = `<tr><td colspan="5" class="table-empty">Failed to load users.</td></tr>`;
+    return;
+  }
+
+  if (data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="table-empty">No users found.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.map(p => `
+    <tr>
+      <td><div class="company-name">${p.company_name || '—'}</div></td>
+      <td><div class="email-cell">${p.email || '—'}</div></td>
+      <td>${roleBadge(p.role)}</td>
+      <td><span class="date-cell">${fmtDate(p.created_at)}</span></td>
+      <td>${roleSelect(p.id, p.role)}</td>
+    </tr>
+  `).join('');
+}
+
+// ── Auth guard + init ──
+document.getElementById('logout-btn').addEventListener('click', async () => {
+  await db.auth.signOut();
+  window.location.replace('https://internationaldiamondtrade.com/login.html');
+});
+
+async function getSessionWithRetry() {
+  for (let i = 0; i < 10; i++) {
+    const { data: { session } } = await db.auth.getSession();
+    if (session) return session;
+    await new Promise(r => setTimeout(r, 200));
+  }
+  return null;
+}
+
+async function getRoleWithRetry(session) {
+  for (let i = 0; i < 10; i++) {
+    let role = session.user.user_metadata?.role;
+
+    if (!role) {
+      const { data: profile } = await db
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single();
+
+      role = profile?.role;
+    }
+
+    if (role) return role;
+
+    await new Promise(r => setTimeout(r, 200));
+  }
+  return null;
+}
+
+(async () => {
+  const session = await getSessionWithRetry();
+
+  if (!session) {
+    window.location.replace('https://internationaldiamondtrade.com/login.html');
+    return;
+  }
+
+  const role = await getRoleWithRetry(session);
+
+  if (!role) {
+    window.location.replace('https://internationaldiamondtrade.com/login.html');
+    return;
+  }
+
+  if (role && window.location.pathname === '/admin.html' && role !== 'admin') {
+    window.location.replace('/buyer.html');
+    return;
+  }
+
+  document.body.classList.add('ready');
+  loadStats();
+  loadUsers();
+})();
+</script>
+</body>
+</html>
