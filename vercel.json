@@ -5,6 +5,7 @@
     { "source": "/set-password", "destination": "/set-password.html" },
     { "source": "/admin",        "destination": "/admin.html"        },
     { "source": "/buyer",        "destination": "/buyer.html"        },
-    { "source": "/supplier",     "destination": "/supplier.html"     }
+    { "source": "/supplier",     "destination": "/supplier.html"     },
+    { "source": "/marketplace", "destination": "/marketplace.html" }
   ]
 }

@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diamond Marketplace — International Diamond Trade</title>
+<meta name="description" content="Browse certified natural and lab-grown diamonds from verified global suppliers.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg0: #06080F;
+  --bg1: #0D1020;
+  --bg2: #131726;
+  --bg3: #181d2e;
+  --gold: #C9A84C;
+  --gold-light: #E8D5A3;
+  --gold-dim: rgba(201,168,76,0.10);
+  --gold-border: rgba(201,168,76,0.22);
+  --text: #E8E8F0;
+  --text-muted: #8A8FAA;
+  --border-sub: rgba(255,255,255,0.06);
+  --radius: 14px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg0);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  visibility: hidden;
+}
+
+body.ready { visibility: visible; }
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 40% at 10% 0%, rgba(201,168,76,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 90% 100%, rgba(201,168,76,0.035) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Header ── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  background: rgba(6,8,15,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-sub);
+  padding: 0 40px;
+  height: 68px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 24px;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  text-decoration: none;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.logo-diamond { width: 34px; height: 34px; }
+
+.logo-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--gold-light);
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  gap: 3px;
+}
+
+.logo-sub {
+  font-size: 0.55rem;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.header-center {
+  text-align: center;
+}
+
+.header-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--gold-light);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-self: end;
+}
+
+.user-email {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 300;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-portal {
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  border-radius: 8px;
+  color: var(--gold);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 7px 16px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+.btn-portal:hover { background: rgba(201,168,76,0.18); border-color: var(--gold); }
+
+.btn-logout {
+  background: transparent;
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 400;
+  padding: 7px 16px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+.btn-logout:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ── Page ── */
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 40px 96px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Page heading ── */
+.page-eyebrow {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+
+.page-heading {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-weight: 400;
+  color: var(--gold-light);
+  letter-spacing: 0.01em;
+  margin-bottom: 6px;
+}
+
+.page-sub {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 300;
+  margin-bottom: 40px;
+}
+
+/* ── Filter bar ── */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-filter {
+  background: var(--bg1);
+  border: 1px solid var(--border-sub);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 400;
+  padding: 7px 18px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.btn-filter:hover { border-color: var(--gold-border); color: var(--text); }
+.btn-filter.active {
+  background: var(--gold-dim);
+  border-color: var(--gold-border);
+  color: var(--gold);
+}
+
+.sort-select {
+  margin-left: auto;
+  background: var(--bg1);
+  border: 1px solid var(--border-sub);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  padding: 7px 14px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.sort-select:hover, .sort-select:focus { border-color: var(--gold-border); color: var(--text); }
+
+/* ── Listing grid ── */
+.listing-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+/* ── Listing card ── */
+.listing-card {
+  background: var(--bg1);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius);
+  padding: 28px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+}
+
+.listing-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201,168,76,0.04) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.listing-card:hover {
+  border-color: rgba(201,168,76,0.45);
+  box-shadow: 0 0 36px rgba(201,168,76,0.09);
+  transform: translateY(-2px);
+}
+.listing-card:hover::before { opacity: 1; }
+
+/* Badges row */
+.card-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge {
+  font-size: 0.67rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: 20px;
+  padding: 3px 10px;
+}
+
+.badge-natural {
+  color: #6bb5f5;
+  background: rgba(107,181,245,0.1);
+  border: 1px solid rgba(107,181,245,0.25);
+}
+
+.badge-lab {
+  color: #b08cf5;
+  background: rgba(176,140,245,0.1);
+  border: 1px solid rgba(176,140,245,0.25);
+}
+
+.badge-cert {
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+}
+
+/* Card title */
+.card-diamond-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.45rem;
+  font-weight: 500;
+  color: var(--gold-light);
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+
+/* Spec pills */
+.spec-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.spec-pill {
+  background: var(--bg2);
+  border: 1px solid var(--border-sub);
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+.spec-pill strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* Cert number */
+.cert-num {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Origin row */
+.origin-row {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-weight: 300;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.origin-row strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* Price block */
+.price-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.price-per-ct {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.65rem;
+  font-weight: 500;
+  color: var(--gold);
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+.price-total {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 300;
+}
+
+/* Trade terms row */
+.terms-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.terms-sep { opacity: 0.3; }
+
+/* Card actions */
+.card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.btn-quote, .btn-offer {
+  width: 100%;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.84rem;
+  font-weight: 500;
+  padding: 10px 16px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.02em;
+}
+
+.btn-quote {
+  background: transparent;
+  border: 1px solid var(--gold-border);
+  color: var(--gold);
+}
+.btn-quote:hover {
+  background: var(--gold-dim);
+  border-color: var(--gold);
+}
+
+.btn-offer {
+  background: linear-gradient(135deg, var(--gold) 0%, #a8832e 100%);
+  border: none;
+  color: var(--bg0);
+  font-weight: 600;
+}
+.btn-offer:hover {
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+  box-shadow: 0 4px 18px rgba(201,168,76,0.3);
+}
+
+/* ── Modal overlay ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6,8,15,0.88);
+  backdrop-filter: blur(8px);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal-box {
+  background: var(--bg1);
+  border: 1px solid var(--gold-border);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 40px 40px 36px;
+  position: relative;
+  transform: translateY(12px);
+  transition: transform 0.25s;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-border) transparent;
+}
+.modal-overlay.open .modal-box {
+  transform: translateY(0);
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.4rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+}
+.modal-close:hover { color: var(--text); background: var(--bg2); }
+
+.modal-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.7rem;
+  font-weight: 500;
+  color: var(--gold-light);
+  margin-bottom: 6px;
+}
+
+.modal-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+
+/* Form fields */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 18px;
+}
+
+.form-label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.form-input, .form-textarea, .form-select {
+  background: var(--bg2);
+  border: 1px solid var(--border-sub);
+  border-radius: 9px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  padding: 11px 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  border-color: var(--gold-border);
+}
+.form-input[readonly] {
+  color: var(--text-muted);
+  cursor: default;
+}
+.form-textarea { resize: vertical; min-height: 88px; }
+.form-select { appearance: none; cursor: pointer; }
+
+.live-total {
+  background: var(--bg2);
+  border: 1px solid var(--gold-border);
+  border-radius: 9px;
+  padding: 12px 16px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  color: var(--gold);
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.modal-disclaimer {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 24px;
+  padding: 12px 14px;
+  background: var(--bg2);
+  border-radius: 8px;
+  border-left: 2px solid var(--gold-border);
+}
+
+.btn-submit {
+  width: 100%;
+  background: linear-gradient(135deg, var(--gold) 0%, #a8832e 100%);
+  border: none;
+  border-radius: 10px;
+  color: var(--bg0);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s, box-shadow 0.2s;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-submit:hover:not(:disabled) {
+  box-shadow: 0 4px 20px rgba(201,168,76,0.35);
+}
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-submit-ghost {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  padding: 10px;
+  cursor: pointer;
+  transition: color 0.2s;
+  margin-top: 6px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.btn-submit-ghost:hover { color: var(--text); }
+
+.modal-error {
+  background: rgba(224,85,85,0.1);
+  border: 1px solid rgba(224,85,85,0.3);
+  border-radius: 8px;
+  color: #E05555;
+  font-size: 0.82rem;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  display: none;
+}
+
+/* Success screen */
+.success-screen {
+  text-align: center;
+  padding: 12px 0;
+}
+
+.success-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+}
+
+.success-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.7rem;
+  font-weight: 500;
+  color: var(--gold-light);
+  margin-bottom: 14px;
+}
+
+.success-body {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+
+.btn-escrow {
+  display: inline-block;
+  width: 100%;
+  background: linear-gradient(135deg, var(--gold) 0%, #a8832e 100%);
+  border: none;
+  border-radius: 10px;
+  color: var(--bg0);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: box-shadow 0.2s;
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+.btn-escrow:hover { box-shadow: 0 4px 20px rgba(201,168,76,0.35); }
+
+.success-ref {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-top: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Spinner */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(6,8,15,0.3);
+  border-top-color: var(--bg0);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 600;
+  background: var(--bg1);
+  border: 1px solid rgba(76,175,125,0.35);
+  border-radius: 10px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  max-width: 340px;
+  transform: translateX(120%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+.toast.show { transform: translateX(0); }
+.toast-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4CAF7D;
+  flex-shrink: 0;
+}
+.toast-text {
+  font-size: 0.85rem;
+  color: var(--text);
+  line-height: 1.5;
+  font-weight: 300;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .listing-grid { grid-template-columns: 1fr; }
+  .header { padding: 0 20px; }
+  .page { padding: 36px 20px 72px; }
+  .header-title { font-size: 0.95rem; }
+  .user-email { display: none; }
+}
+@media (max-width: 600px) {
+  .header {
+    grid-template-columns: auto 1fr;
+  }
+  .header-center { display: none; }
+  .modal-box { padding: 28px 20px 24px; }
+  .card-actions { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="/" class="nav-logo">
+    <svg class="logo-diamond" viewBox="0 0 40 40" fill="none">
+      <polygon points="20,2 38,14 38,26 20,38 2,26 2,14" stroke="#C9A84C" stroke-width="1" fill="rgba(201,168,76,0.05)"/>
+      <polygon points="20,8 32,16 32,24 20,32 8,24 8,16" stroke="#C9A84C" stroke-width="0.5" fill="rgba(201,168,76,0.08)"/>
+      <line x1="20" y1="2" x2="20" y2="38" stroke="#C9A84C" stroke-width="0.4" opacity="0.5"/>
+      <line x1="2" y1="14" x2="38" y2="26" stroke="#C9A84C" stroke-width="0.4" opacity="0.5"/>
+      <line x1="2" y1="26" x2="38" y2="14" stroke="#C9A84C" stroke-width="0.4" opacity="0.5"/>
+      <circle cx="20" cy="20" r="2" fill="#C9A84C" opacity="0.7"/>
+    </svg>
+    <span class="logo-text">IDT
+      <span class="logo-sub">International Diamond Trade</span>
+    </span>
+  </a>
+
+  <div class="header-center">
+    <span class="header-title">Diamond Marketplace</span>
+  </div>
+
+  <div class="header-right">
+    <span class="user-email" id="user-email"></span>
+    <a href="#" class="btn-portal" id="portal-btn">My Portal</a>
+    <button class="btn-logout" id="logout-btn">Sign Out</button>
+  </div>
+</header>
+
+<main class="page">
+  <div class="page-eyebrow">Marketplace</div>
+  <h1 class="page-heading">Diamond Listings</h1>
+  <p class="page-sub">Certified natural and lab-grown diamonds from verified global suppliers.</p>
+
+  <div class="filter-bar">
+    <div class="filter-group">
+      <button class="btn-filter active" data-filter="all">All</button>
+      <button class="btn-filter" data-filter="Natural">Natural</button>
+      <button class="btn-filter" data-filter="Lab-Grown">Lab-Grown</button>
+    </div>
+    <select class="sort-select" id="sort-select">
+      <option value="price-asc">Price: Low to High</option>
+      <option value="price-desc">Price: High to Low</option>
+      <option value="carat-desc">Carat: High to Low</option>
+    </select>
+  </div>
+
+  <div class="listing-grid" id="listing-grid"></div>
+</main>
+
+<!-- Make Offer Modal -->
+<div class="modal-overlay" id="offer-modal">
+  <div class="modal-box">
+    <button class="modal-close" id="offer-modal-close">&#215;</button>
+    <div id="offer-form-content">
+      <div class="modal-title">Make an Offer</div>
+      <div class="modal-subtitle" id="offer-subtitle"></div>
+      <div class="modal-error" id="offer-error"></div>
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input class="form-input" id="offer-name" type="text" placeholder="Your full name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="offer-email" type="text" readonly>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Offer Price per Carat (USD)</label>
+        <input class="form-input" id="offer-price" type="number" min="1" step="1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Quantity (carats)</label>
+        <input class="form-input" id="offer-qty" type="number" min="0.01" step="0.01">
+      </div>
+      <div class="live-total" id="live-total">Total offer value: $0</div>
+      <div class="form-group">
+        <label class="form-label">Message to IDT <span style="opacity:0.5;text-transform:none;font-weight:300">(optional)</span></label>
+        <textarea class="form-textarea" id="offer-message" placeholder="Any specific requirements, delivery preferences, or trade terms..."></textarea>
+      </div>
+      <div class="modal-disclaimer">
+        Your offer is secured via Escrow.com. IDT acts as the trusted intermediary. Funds are only released once you confirm receipt of goods.
+      </div>
+      <button class="btn-submit" id="offer-submit-btn">
+        <span id="offer-btn-label">Submit Offer →</span>
+        <div class="spinner" id="offer-spinner"></div>
+      </button>
+      <button class="btn-submit-ghost" id="offer-cancel-btn">Cancel</button>
+    </div>
+
+    <div id="offer-success-content" style="display:none">
+      <div class="success-screen">
+        <svg class="success-icon" viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="32" r="30" stroke="#4CAF7D" stroke-width="2" fill="rgba(76,175,125,0.1)"/>
+          <polyline points="18,33 27,42 46,22" stroke="#4CAF7D" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="success-title">Offer Submitted Successfully</div>
+        <div class="success-body">
+          Your offer has been received by IDT and secured with Escrow.com. Click below to complete your identity verification and payment commitment on Escrow.com.
+        </div>
+        <a href="#" class="btn-escrow" id="escrow-link" target="_blank" rel="noopener noreferrer">Complete Offer on Escrow.com →</a>
+        <div class="success-ref" id="success-ref"></div>
+        <button class="btn-submit-ghost" id="offer-back-btn" style="margin-top:18px">Back to Marketplace</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Request Quote Modal -->
+<div class="modal-overlay" id="quote-modal">
+  <div class="modal-box">
+    <button class="modal-close" id="quote-modal-close">&#215;</button>
+    <div class="modal-title">Request a Quote</div>
+    <div class="modal-subtitle" id="quote-subtitle"></div>
+    <div class="form-group">
+      <label class="form-label">Full Name</label>
+      <input class="form-input" id="quote-name" type="text" placeholder="Your full name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" id="quote-email" type="text" readonly>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Company Name</label>
+      <input class="form-input" id="quote-company" type="text" placeholder="Your company name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Quantity Needed</label>
+      <input class="form-input" id="quote-qty" type="text" placeholder="e.g. Single stone / 10ct parcel">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Budget per Carat (USD)</label>
+      <input class="form-input" id="quote-budget" type="number" min="1" step="1">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Certification Preference</label>
+      <select class="form-select" id="quote-cert">
+        <option value="GIA Only">GIA Only</option>
+        <option value="GIA or IGI">GIA or IGI</option>
+        <option value="Any Reputable">Any Reputable</option>
+        <option value="No Preference">No Preference</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Additional Requirements <span style="opacity:0.5;text-transform:none;font-weight:300">(optional)</span></label>
+      <textarea class="form-textarea" id="quote-notes" placeholder="Any other requirements..."></textarea>
+    </div>
+    <button class="btn-submit" id="quote-submit-btn">Send Quote Request →</button>
+    <button class="btn-submit-ghost" id="quote-cancel-btn">Cancel</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <div class="toast-dot"></div>
+  <div class="toast-text" id="toast-text"></div>
+</div>
+
+<script>
+const SUPABASE_URL  = 'https://hlmdkhixdrowbnxgbuvy.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsbWRraGl4ZHJvd2JueGdidXZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NDIzMjQsImV4cCI6MjA5MjAxODMyNH0.2QOyrIHHReHH2prRCP78UcO1I3oCqauKpn_0pjpP7W8';
+const ESCROW_AUTH   = btoa('akrashumar4@gmail.com:18854_ItbAajf1x1RzyhdlhzvZ9Cr8TwuWr2kdodgy4iVNdoD96k5w9EAIlXqUncKgSzC9');
+
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let currentUser = null;
+let currentRole = null;
+let activeOfferListing = null;
+
+const LISTINGS = [
+  { id:'l1', shape:'Round Brilliant', carat:2.54, color:'D', clarity:'VVS1', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', fluorescence:'None', cert:'GIA', certNum:'GIA 6147711913', origin:'Botswana', type:'Natural', seller:'Al-Rashid Gems', sellerCountry:'🇦🇪 UAE', pricePerCarat:14800, totalPrice:37592, dispatch:'Immediate', terms:'FOB', payment:'100% TT Advance' },
+  { id:'l2', shape:'Oval Cut', carat:3.12, color:'E', clarity:'VS1', cut:'Excellent', polish:'Very Good', symmetry:'Very Good', fluorescence:'Faint', cert:'GIA', certNum:'GIA 2141438741', origin:'South Africa', type:'Natural', seller:'Cape Diamond Co.', sellerCountry:'🇿🇦 South Africa', pricePerCarat:11200, totalPrice:34944, dispatch:'1 Week', terms:'CIF', payment:'50/50' },
+  { id:'l3', shape:'Emerald Cut', carat:5.08, color:'F', clarity:'VVS2', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', fluorescence:'None', cert:'GIA', certNum:'GIA 5182691333', origin:'Russia', type:'Natural', seller:'Alrosa Partners', sellerCountry:'🇷🇺 Russia', pricePerCarat:9400, totalPrice:47752, dispatch:'2 Weeks', terms:'EXW', payment:'LC at Sight' },
+  { id:'l4', shape:'Princess Cut', carat:1.85, color:'G', clarity:'VS2', cut:'Very Good', polish:'Very Good', symmetry:'Good', fluorescence:'Medium', cert:'IGI', certNum:'IGI 456123789', origin:'Canada', type:'Natural', seller:'Canadian Diamond Exchange', sellerCountry:'🇨🇦 Canada', pricePerCarat:7200, totalPrice:13320, dispatch:'1 Week', terms:'DAP', payment:'100% TT Advance' },
+  { id:'l5', shape:'Cushion Brilliant', carat:4.00, color:'D', clarity:'IF', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', fluorescence:'None', cert:'IGI', certNum:'IGI 987654321', origin:'India (Lab)', type:'Lab-Grown', seller:'Radiant Grown India', sellerCountry:'🇮🇳 India', pricePerCarat:4200, totalPrice:16800, dispatch:'Immediate', terms:'FOB', payment:'50/50' },
+  { id:'l6', shape:'Pear Shape', carat:1.50, color:'H', clarity:'SI1', cut:'Very Good', polish:'Good', symmetry:'Very Good', fluorescence:'Strong', cert:'HRD', certNum:'HRD 112233445', origin:'Angola', type:'Natural', seller:'Luanda Diamond Corp', sellerCountry:'🇦🇴 Angola', pricePerCarat:5800, totalPrice:8700, dispatch:'1 Month', terms:'CIF', payment:'Net 30' },
+  { id:'l7', shape:'Round Brilliant', carat:0.75, color:'E', clarity:'VS1', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', fluorescence:'None', cert:'GIA', certNum:'GIA 7251369080', origin:'Botswana', type:'Natural', seller:'Al-Rashid Gems', sellerCountry:'🇦🇪 UAE', pricePerCarat:8600, totalPrice:6450, dispatch:'Immediate', terms:'FOB', payment:'100% TT Advance' },
+  { id:'l8', shape:'Marquise Cut', carat:2.20, color:'F', clarity:'VVS1', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', fluorescence:'None', cert:'GIA', certNum:'GIA 6391274850', origin:'Zimbabwe', type:'Natural', seller:'Harare Diamond House', sellerCountry:'🇿🇼 Zimbabwe', pricePerCarat:10400, totalPrice:22880, dispatch:'2 Weeks', terms:'EXW', payment:'LC at Sight' }
+];
+
+/* ── Auth ── */
+async function getSessionWithRetry() {
+  for (let i = 0; i < 10; i++) {
+    const { data: { session } } = await db.auth.getSession();
+    if (session) return session;
+    await new Promise(r => setTimeout(r, 200));
+  }
+  return null;
+}
+
+async function getRoleWithRetry(session) {
+  for (let i = 0; i < 10; i++) {
+    let role = session.user.user_metadata?.role;
+
+    if (!role) {
+      const { data: profile } = await db
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single();
+
+      role = profile?.role;
+    }
+
+    if (role) return role;
+
+    await new Promise(r => setTimeout(r, 200));
+  }
+  return null;
+}
+
+async function handleLogout() {
+  await db.auth.signOut();
+  window.location.replace('/login.html');
+}
+
+document.getElementById('logout-btn').addEventListener('click', handleLogout);
+
+/* ── Utilities ── */
+function fmtUSD(n) {
+  return '$' + Math.round(n).toLocaleString('en-US');
+}
+
+/* ── Render listings ── */
+let activeFilter = 'all';
+let activeSort   = 'price-asc';
+
+function getFiltered() {
+  let list = activeFilter === 'all'
+    ? [...LISTINGS]
+    : LISTINGS.filter(l => l.type === activeFilter);
+
+  if (activeSort === 'price-asc')   list.sort((a,b) => a.pricePerCarat - b.pricePerCarat);
+  if (activeSort === 'price-desc')  list.sort((a,b) => b.pricePerCarat - a.pricePerCarat);
+  if (activeSort === 'carat-desc')  list.sort((a,b) => b.carat - a.carat);
+
+  return list;
+}
+
+function renderListings() {
+  const grid = document.getElementById('listing-grid');
+  const list = getFiltered();
+  grid.innerHTML = list.map(l => `
+    <div class="listing-card">
+      <div class="card-badges">
+        <span class="badge ${l.type === 'Natural' ? 'badge-natural' : 'badge-lab'}">${l.type}</span>
+        <span class="badge badge-cert">${l.cert}</span>
+      </div>
+      <div class="card-diamond-title">${l.shape} &middot; ${l.carat}ct</div>
+      <div class="spec-row">
+        <span class="spec-pill">Color <strong>${l.color}</strong></span>
+        <span class="spec-pill">Clarity <strong>${l.clarity}</strong></span>
+        <span class="spec-pill">Cut <strong>${l.cut}</strong></span>
+      </div>
+      <div class="spec-row">
+        <span class="spec-pill">Polish <strong>${l.polish}</strong></span>
+        <span class="spec-pill">Symmetry <strong>${l.symmetry}</strong></span>
+        <span class="spec-pill">Fluorescence <strong>${l.fluorescence}</strong></span>
+      </div>
+      <div class="cert-num">${l.certNum}</div>
+      <div class="origin-row">
+        <span>${l.sellerCountry}</span>
+        <span class="terms-sep">·</span>
+        <strong>${l.seller}</strong>
+        <span class="terms-sep">·</span>
+        <span>${l.origin}</span>
+      </div>
+      <div class="price-block">
+        <div class="price-per-ct">${fmtUSD(l.pricePerCarat)} <span style="font-size:0.9rem;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-weight:300">/ ct</span></div>
+        <div class="price-total">Total: ${fmtUSD(l.totalPrice)}</div>
+      </div>
+      <div class="terms-row">
+        <span>${l.dispatch}</span>
+        <span class="terms-sep">·</span>
+        <span>${l.terms}</span>
+        <span class="terms-sep">·</span>
+        <span>${l.payment}</span>
+      </div>
+      <div class="card-actions">
+        <button class="btn-quote" onclick="openQuoteModal('${l.id}')">Request Quote</button>
+        <button class="btn-offer" onclick="openOfferModal('${l.id}')">Make Offer</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── Filter / sort events ── */
+document.querySelectorAll('.btn-filter').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter = btn.dataset.filter;
+    renderListings();
+  });
+});
+
+document.getElementById('sort-select').addEventListener('change', e => {
+  activeSort = e.target.value;
+  renderListings();
+});
+
+/* ── Offer modal ── */
+function openOfferModal(listingId) {
+  const l = LISTINGS.find(x => x.id === listingId);
+  if (!l) return;
+  activeOfferListing = l;
+
+  document.getElementById('offer-subtitle').textContent =
+    `${l.shape} ${l.carat}ct ${l.color}/${l.clarity} — ${l.seller}`;
+
+  const name = currentUser?.user_metadata?.company_name || currentUser?.email || '';
+  document.getElementById('offer-name').value  = name;
+  document.getElementById('offer-email').value = currentUser?.email || '';
+  document.getElementById('offer-price').value = l.pricePerCarat;
+  document.getElementById('offer-qty').value   = l.carat;
+  updateLiveTotal();
+
+  document.getElementById('offer-error').style.display = 'none';
+  document.getElementById('offer-error').textContent   = '';
+
+  document.getElementById('offer-form-content').style.display   = '';
+  document.getElementById('offer-success-content').style.display = 'none';
+
+  resetSubmitBtn();
+  document.getElementById('offer-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeOfferModal() {
+  document.getElementById('offer-modal').classList.remove('open');
+  document.body.style.overflow = '';
+  activeOfferListing = null;
+}
+
+function updateLiveTotal() {
+  const price = parseFloat(document.getElementById('offer-price').value) || 0;
+  const qty   = parseFloat(document.getElementById('offer-qty').value)   || 0;
+  document.getElementById('live-total').textContent =
+    'Total offer value: ' + fmtUSD(price * qty);
+}
+
+document.getElementById('offer-price').addEventListener('input', updateLiveTotal);
+document.getElementById('offer-qty').addEventListener('input', updateLiveTotal);
+
+document.getElementById('offer-modal-close').addEventListener('click', closeOfferModal);
+document.getElementById('offer-cancel-btn').addEventListener('click', closeOfferModal);
+document.getElementById('offer-back-btn').addEventListener('click', closeOfferModal);
+
+document.getElementById('offer-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('offer-modal')) closeOfferModal();
+});
+
+function resetSubmitBtn() {
+  const btn     = document.getElementById('offer-submit-btn');
+  const label   = document.getElementById('offer-btn-label');
+  const spinner = document.getElementById('offer-spinner');
+  btn.disabled        = false;
+  label.style.display = '';
+  spinner.style.display = 'none';
+}
+
+function setSubmitLoading(loading) {
+  const btn     = document.getElementById('offer-submit-btn');
+  const label   = document.getElementById('offer-btn-label');
+  const spinner = document.getElementById('offer-spinner');
+  btn.disabled          = loading;
+  label.style.display   = loading ? 'none' : '';
+  spinner.style.display = loading ? 'block' : 'none';
+}
+
+document.getElementById('offer-submit-btn').addEventListener('click', async () => {
+  const l     = activeOfferListing;
+  const name  = document.getElementById('offer-name').value.trim();
+  const email = document.getElementById('offer-email').value.trim();
+  const price = parseFloat(document.getElementById('offer-price').value);
+  const qty   = parseFloat(document.getElementById('offer-qty').value);
+
+  const errEl = document.getElementById('offer-error');
+  errEl.style.display = 'none';
+
+  if (!name || !email || !price || !qty) {
+    errEl.textContent   = 'Please fill in all required fields.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  setSubmitLoading(true);
+
+  const listingRef = `idt-${l.id}`;
+  const description = `${l.shape} ${l.carat}ct ${l.color}/${l.clarity} — IDT Transaction`;
+  const itemTitle   = `${l.shape} ${l.carat}ct ${l.color}/${l.clarity} ${l.cut} Cut`;
+  const itemDesc    = `${l.cert} certified. Origin: ${l.origin}. Seller: ${l.seller}. Arranged by International Diamond Trade.`;
+
+  const body = {
+    transaction: {
+      parties: [
+        { customer: 'buyer_user', role: 'buyer', agreed: true, initiator: true },
+        { role: 'seller', customer: 'akrashumar4@gmail.com', agreed: true }
+      ],
+      currency: 'usd',
+      description: description,
+      listing_reference: listingRef,
+      items: [{
+        title: itemTitle,
+        description: itemDesc,
+        type: 'general_merchandise',
+        inspection_period: 259200,
+        quantity: 1,
+        schedule: [{
+          amount: price * qty,
+          payer_customer: 'buyer_user',
+          beneficiary_customer: 'akrashumar4@gmail.com'
+        }]
+      }]
+    }
+  };
+
+  try {
+    const res = await fetch('https://api.escrow-sandbox.com/integration/2018-08-01/auction', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ' + ESCROW_AUTH
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (!res.ok) {
+      let errMsg = `Error ${res.status}`;
+      try {
+        const errData = await res.json();
+        errMsg = errData?.error || errData?.message || errMsg;
+      } catch (_) {}
+      throw new Error(errMsg);
+    }
+
+    const data = await res.json();
+    const makeOfferPage = data.make_offer_page
+      || data.transaction?.make_offer_page
+      || '#';
+
+    document.getElementById('escrow-link').href   = makeOfferPage;
+    document.getElementById('success-ref').textContent =
+      'Transaction reference: ' + listingRef;
+
+    document.getElementById('offer-form-content').style.display   = 'none';
+    document.getElementById('offer-success-content').style.display = '';
+
+  } catch (err) {
+    errEl.textContent   = 'Submission failed: ' + err.message;
+    errEl.style.display = 'block';
+    setSubmitLoading(false);
+  }
+});
+
+/* ── Quote modal ── */
+function openQuoteModal(listingId) {
+  const l = LISTINGS.find(x => x.id === listingId);
+  if (!l) return;
+
+  document.getElementById('quote-subtitle').textContent =
+    `${l.shape} ${l.carat}ct — ${l.seller}`;
+
+  const name = currentUser?.user_metadata?.company_name || currentUser?.email || '';
+  document.getElementById('quote-name').value  = name;
+  document.getElementById('quote-email').value = currentUser?.email || '';
+  document.getElementById('quote-company').value = currentUser?.user_metadata?.company_name || '';
+  document.getElementById('quote-qty').value    = '';
+  document.getElementById('quote-budget').value = '';
+  document.getElementById('quote-notes').value  = '';
+
+  document.getElementById('quote-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeQuoteModal() {
+  document.getElementById('quote-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('quote-modal-close').addEventListener('click', closeQuoteModal);
+document.getElementById('quote-cancel-btn').addEventListener('click', closeQuoteModal);
+
+document.getElementById('quote-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('quote-modal')) closeQuoteModal();
+});
+
+document.getElementById('quote-submit-btn').addEventListener('click', () => {
+  closeQuoteModal();
+  showToast('Quote request sent. IDT will contact you within 24 hours.');
+});
+
+/* ── Toast ── */
+let toastTimer = null;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = msg;
+  el.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+/* ── Init ── */
+(async () => {
+  const session = await getSessionWithRetry();
+
+  if (!session) {
+    window.location.replace('/login.html');
+    return;
+  }
+
+  const role = await getRoleWithRetry(session);
+
+  if (!role) {
+    window.location.replace('/login.html');
+    return;
+  }
+
+  currentUser = session.user;
+  currentRole = role;
+
+  document.getElementById('user-email').textContent = currentUser.email;
+
+  const portalHref =
+    role === 'supplier' ? '/supplier.html' :
+    role === 'admin'    ? '/admin.html'    :
+                          '/buyer.html';
+  document.getElementById('portal-btn').href = portalHref;
+
+  renderListings();
+  document.body.classList.add('ready');
+})();
+</script>
+</body>
+</html>
