@@ -437,6 +437,68 @@ body::before {
   .cards { grid-template-columns: 1fr; }
   .badge-buyer { display: none; }
 }
+
+/* ── Chat Panel ── */
+.chat-overlay {
+  position: fixed; inset: 0; background: rgba(6,8,15,0.82); backdrop-filter: blur(6px);
+  z-index: 800; display: flex; align-items: center; justify-content: center;
+  padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.25s;
+}
+.chat-overlay.open { opacity: 1; pointer-events: all; }
+.chat-panel {
+  background: var(--bg1); border: 1px solid var(--gold-border); border-radius: 18px;
+  width: 100%; max-width: 560px; height: min(680px, 90vh);
+  display: flex; flex-direction: column; overflow: hidden;
+  transform: translateY(16px); transition: transform 0.25s;
+}
+.chat-overlay.open .chat-panel { transform: translateY(0); }
+.chat-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px; padding: 20px 24px 16px; border-bottom: 1px solid var(--border-sub); flex-shrink: 0;
+}
+.chat-header-info { display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1; }
+.chat-title { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 500; color: var(--gold-light); line-height: 1.3; }
+.chat-close {
+  background: none; border: none; color: var(--text-muted); font-size: 1.4rem;
+  cursor: pointer; line-height: 1; padding: 2px 8px; border-radius: 6px; flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+.chat-close:hover { color: var(--text); background: var(--bg2); }
+.chat-messages {
+  flex: 1; overflow-y: auto; padding: 20px 24px;
+  display: flex; flex-direction: column; gap: 12px;
+  scrollbar-width: thin; scrollbar-color: var(--gold-border) transparent;
+}
+.msg-row { display: flex; flex-direction: column; gap: 3px; }
+.msg-row.msg-self { align-items: flex-end; }
+.msg-row.msg-idt  { align-items: flex-start; }
+.msg-sender { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.05em; padding: 0 4px; color: var(--text-muted); }
+.msg-row.msg-self .msg-sender { color: var(--gold); }
+.msg-row.msg-idt  .msg-sender { color: var(--gold); }
+.msg-bubble { padding: 10px 14px; border-radius: 12px; font-size: 0.875rem; line-height: 1.5; max-width: 82%; word-break: break-word; }
+.msg-row.msg-self .msg-bubble { background: rgba(201,168,76,0.18); color: var(--text); border-bottom-right-radius: 4px; }
+.msg-row.msg-idt  .msg-bubble { background: var(--bg2); color: var(--gold-light); border-left: 3px solid var(--gold); border-bottom-left-radius: 4px; }
+.msg-time { font-size: 0.68rem; color: var(--text-muted); padding: 0 4px; }
+.chat-empty { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 40px 20px; font-weight: 300; line-height: 1.7; }
+.chat-input-bar {
+  display: flex; gap: 10px; padding: 16px 20px;
+  border-top: 1px solid var(--border-sub); background: var(--bg1); flex-shrink: 0;
+}
+.chat-input {
+  flex: 1; background: var(--bg2); border: 1px solid var(--border-sub);
+  border-radius: 9px; color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: 0.875rem; padding: 9px 14px; outline: none; transition: border-color 0.2s;
+}
+.chat-input:focus { border-color: var(--gold-border); }
+.chat-send {
+  background: linear-gradient(135deg, var(--gold) 0%, #a8832e 100%);
+  border: none; border-radius: 9px; color: var(--bg0); font-family: 'DM Sans', sans-serif;
+  font-size: 0.84rem; font-weight: 600; padding: 9px 20px; cursor: pointer;
+  transition: box-shadow 0.2s; white-space: nowrap;
+}
+.chat-send:hover { box-shadow: 0 4px 14px rgba(201,168,76,0.3); }
+.chat-send:disabled { opacity: 0.6; cursor: not-allowed; }
+.enquiry-clickable:hover { background: rgba(255,255,255,0.025); cursor: pointer; }
 </style>
 </head>
 <body>
@@ -541,6 +603,26 @@ body::before {
   </div>
 </main>
 
+<!-- Chat Panel -->
+<div class="chat-overlay" id="chat-overlay">
+  <div class="chat-panel">
+    <div class="chat-header">
+      <div class="chat-header-info">
+        <div class="chat-title" id="chat-title"></div>
+        <span class="status-badge status-pending" id="chat-status-badge" style="width:fit-content;white-space:normal;line-height:1.4"></span>
+      </div>
+      <button class="chat-close" id="chat-close">&#215;</button>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-empty">Loading messages…</div>
+    </div>
+    <div class="chat-input-bar">
+      <input class="chat-input" id="chat-input" type="text" placeholder="Type a message…">
+      <button class="chat-send" id="chat-send">Send</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast">
   <div class="toast-dot"></div>
@@ -626,23 +708,25 @@ async function loadEnquiries() {
     const l = o.listings;
     const diamond = l ? `${l.shape} ${parseFloat(l.carat_weight)}ct ${l.colour_grade}/${l.clarity_grade}` : 'Diamond';
     const date = new Date(o.created_at).toLocaleDateString('en-US', { day:'numeric', month:'short' });
-    const statusLabel = o.status === 'responded' ? 'Supplier responded'
-      : o.status === 'read' ? 'Viewed by supplier'
-      : 'Awaiting supplier';
-    const statusClass = o.status === 'responded' ? 'status-accepted' : 'status-pending';
-    const respondedBanner = o.status === 'responded' ? `
-      <div style="margin-top:8px;padding:8px 12px;background:rgba(76,175,125,0.1);border:1px solid rgba(76,175,125,0.25);border-radius:8px;font-size:0.8rem;color:#4CAF7D">
-        Supplier has responded. <a href="mailto:info@internationaldiamondtrade.com?subject=Enquiry%20Follow-up" style="color:#4CAF7D;font-weight:500">Contact IDT →</a>
-      </div>` : '';
+    const statusLabel = o.status === 'responded' ? 'Response Ready — click to view'
+      : o.status === 'read' ? 'In Progress'
+      : o.status === 'closed' ? 'Closed'
+      : 'Awaiting IDT Review';
+    const statusClass = o.status === 'responded' ? 'status-accepted'
+      : o.status === 'closed' ? 'status-rejected'
+      : 'status-pending';
     return `
-      <div class="offer-row">
+      <div class="offer-row enquiry-clickable"
+           data-id="${o.id}"
+           data-diamond="${diamond.replace(/"/g,'&quot;')}"
+           data-status-label="${statusLabel.replace(/"/g,'&quot;')}"
+           data-status-class="${statusClass}">
         <div style="flex:1">
           <div class="offer-diamond">${diamond}</div>
           <div class="offer-meta">${date}</div>
-          ${respondedBanner}
         </div>
         <div class="offer-right">
-          <span class="status-badge ${statusClass}">${statusLabel}</span>
+          <span class="status-badge ${statusClass}" style="white-space:normal;text-align:right;line-height:1.4">${statusLabel}</span>
         </div>
       </div>`;
   }).join('');
@@ -722,6 +806,105 @@ document.getElementById('save-profile-btn').addEventListener('click', async () =
 
   if (error) showToast('Error saving profile.', true);
   else showToast('Profile saved successfully.');
+});
+
+/* ── Chat Panel ── */
+let chatEnquiryId = null;
+let chatPollTimer = null;
+let chatMsgCount = 0;
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.getElementById('enquiries-list').addEventListener('click', e => {
+  const row = e.target.closest('.enquiry-clickable');
+  if (!row) return;
+  openEnquiryChat(row.dataset.id, row.dataset.diamond, row.dataset.statusLabel, row.dataset.statusClass);
+});
+
+function openEnquiryChat(enquiryId, diamond, statusLabel, statusClass) {
+  chatEnquiryId = enquiryId;
+  chatMsgCount = 0;
+  document.getElementById('chat-title').textContent = diamond;
+  const badge = document.getElementById('chat-status-badge');
+  badge.textContent = statusLabel;
+  badge.className = 'status-badge ' + statusClass;
+  document.getElementById('chat-messages').innerHTML = '<div class="chat-empty">Loading messages…</div>';
+  document.getElementById('chat-input').value = '';
+  document.getElementById('chat-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  fetchChatMessages();
+  if (chatPollTimer) clearInterval(chatPollTimer);
+  chatPollTimer = setInterval(fetchChatMessages, 5000);
+}
+
+function closeChat() {
+  document.getElementById('chat-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  if (chatPollTimer) { clearInterval(chatPollTimer); chatPollTimer = null; }
+  chatEnquiryId = null;
+}
+
+document.getElementById('chat-close').addEventListener('click', closeChat);
+document.getElementById('chat-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('chat-overlay')) closeChat();
+});
+
+async function fetchChatMessages() {
+  if (!chatEnquiryId) return;
+  const { data, error } = await db
+    .from('enquiry_messages')
+    .select('id, sender_role, message, created_at')
+    .eq('enquiry_id', chatEnquiryId)
+    .order('created_at', { ascending: true });
+  if (error) return;
+
+  const container = document.getElementById('chat-messages');
+  const atBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 80;
+
+  if (!data?.length) {
+    container.innerHTML = '<div class="chat-empty">No messages yet. Send a message to get started.</div>';
+    chatMsgCount = 0;
+    return;
+  }
+
+  container.innerHTML = data.map(m => {
+    const isSelf = m.sender_role === 'buyer';
+    /* PRIVACY: supplier messages appear as IDT Team to buyer */
+    const rowClass = isSelf ? 'msg-row msg-self' : 'msg-row msg-idt';
+    const sender   = isSelf ? 'You' : 'IDT Team';
+    const time = new Date(m.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    return `<div class="${rowClass}">
+      <div class="msg-sender">${sender}</div>
+      <div class="msg-bubble">${escapeHtml(m.message)}</div>
+      <div class="msg-time">${time}</div>
+    </div>`;
+  }).join('');
+
+  if (atBottom || data.length > chatMsgCount) container.scrollTop = container.scrollHeight;
+  chatMsgCount = data.length;
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg || !chatEnquiryId) return;
+  const btn = document.getElementById('chat-send');
+  btn.disabled = true; input.disabled = true;
+  const { error } = await db.from('enquiry_messages').insert({
+    enquiry_id:  chatEnquiryId,
+    sender_id:   currentUser.id,
+    sender_role: 'buyer',
+    message:     msg
+  });
+  btn.disabled = false; input.disabled = false;
+  if (!error) { input.value = ''; fetchChatMessages(); }
+}
+
+document.getElementById('chat-send').addEventListener('click', sendChatMessage);
+document.getElementById('chat-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); }
 });
 
 /* ── Init ── */
