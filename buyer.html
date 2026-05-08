@@ -488,6 +488,19 @@ body::before {
       <div class="card-count" id="listing-count"></div>
     </div>
 
+    <!-- My Enquiries -->
+    <div class="card">
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
+      </div>
+      <div class="card-title">My Enquiries</div>
+      <div class="offers-list" id="enquiries-list">
+        <div class="empty-note" style="padding:20px 0;text-align:center">Loading…</div>
+      </div>
+    </div>
+
     <!-- My Offers -->
     <div class="card">
       <div class="card-icon">
@@ -594,33 +607,78 @@ async function loadListingCount() {
   if (count != null) el.textContent = count.toLocaleString('en-US') + ' diamond' + (count !== 1 ? 's' : '') + ' currently listed';
 }
 
+/* ── My Enquiries ── */
+async function loadEnquiries() {
+  const el = document.getElementById('enquiries-list');
+
+  const { data, error } = await db
+    .from('enquiries')
+    .select('*, listings(shape, carat_weight, colour_grade, clarity_grade)')
+    .eq('buyer_id', currentUser.id)
+    .order('created_at', { ascending: false });
+
+  if (error || !data?.length) {
+    el.innerHTML = `<div class="empty-note">No enquiries yet.<br><a href="/marketplace.html" style="color:var(--gold);text-decoration:none">Request a quote</a> from the marketplace.</div>`;
+    return;
+  }
+
+  el.innerHTML = data.map(o => {
+    const l = o.listings;
+    const diamond = l ? `${l.shape} ${parseFloat(l.carat_weight)}ct ${l.colour_grade}/${l.clarity_grade}` : 'Diamond';
+    const date = new Date(o.created_at).toLocaleDateString('en-US', { day:'numeric', month:'short' });
+    const statusLabel = o.status === 'responded' ? 'Supplier responded'
+      : o.status === 'read' ? 'Viewed by supplier'
+      : 'Awaiting supplier';
+    const statusClass = o.status === 'responded' ? 'status-accepted' : 'status-pending';
+    const respondedBanner = o.status === 'responded' ? `
+      <div style="margin-top:8px;padding:8px 12px;background:rgba(76,175,125,0.1);border:1px solid rgba(76,175,125,0.25);border-radius:8px;font-size:0.8rem;color:#4CAF7D">
+        Supplier has responded. <a href="mailto:info@internationaldiamondtrade.com?subject=Enquiry%20Follow-up" style="color:#4CAF7D;font-weight:500">Contact IDT →</a>
+      </div>` : '';
+    return `
+      <div class="offer-row">
+        <div style="flex:1">
+          <div class="offer-diamond">${diamond}</div>
+          <div class="offer-meta">${date}</div>
+          ${respondedBanner}
+        </div>
+        <div class="offer-right">
+          <span class="status-badge ${statusClass}">${statusLabel}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
 /* ── My Offers ── */
 async function loadOffers() {
   const el = document.getElementById('offers-list');
 
   const { data, error } = await db
     .from('offers')
-    .select('*, listings(shape, carat, color, clarity)')
+    .select('*, listings(shape, carat_weight, colour_grade, clarity_grade)')
     .eq('buyer_id', currentUser.id)
     .order('created_at', { ascending: false });
 
   if (error || !data?.length) {
-    el.innerHTML = `<div class="empty-note">You haven't made any offers yet.<br><a href="/marketplace.html" style="color:var(--gold);text-decoration:none">Browse the marketplace</a> to get started.</div>`;
+    el.innerHTML = `<div class="empty-note">No offers yet.<br><a href="/marketplace.html" style="color:var(--gold);text-decoration:none">Browse the marketplace</a> to make an offer.</div>`;
     return;
   }
 
   el.innerHTML = data.map(o => {
     const l = o.listings;
-    const diamond = l ? `${l.shape} ${parseFloat(l.carat)}ct ${l.color}/${l.clarity}` : 'Diamond';
+    const diamond = l ? `${l.shape} ${parseFloat(l.carat_weight)}ct ${l.colour_grade}/${l.clarity_grade}` : 'Diamond';
     const date    = new Date(o.created_at).toLocaleDateString('en-US', { day:'numeric', month:'short' });
     const statusClass = o.status === 'accepted' ? 'status-accepted'
       : o.status === 'rejected' ? 'status-rejected'
       : 'status-pending';
+    const escrowBtn = o.escrow_offer_url && o.status === 'pending'
+      ? `<a href="${o.escrow_offer_url}" target="_blank" rel="noopener" style="display:inline-block;margin-top:6px;font-size:0.75rem;color:var(--gold);border:1px solid var(--gold-border);padding:4px 10px;border-radius:6px;text-decoration:none">View Escrow →</a>`
+      : '';
     return `
       <div class="offer-row">
         <div>
           <div class="offer-diamond">${diamond}</div>
           <div class="offer-meta">${date}</div>
+          ${escrowBtn}
         </div>
         <div class="offer-right">
           <div class="offer-amount">$${Math.round(o.total_amount || 0).toLocaleString('en-US')}</div>
@@ -700,7 +758,7 @@ document.getElementById('save-profile-btn').addEventListener('click', async () =
   const name = profile?.company_name || currentUser.email || 'Guest';
   document.getElementById('welcome-heading').textContent = 'Welcome, ' + name;
 
-  await Promise.all([loadListingCount(), loadOffers(), loadProfile()]);
+  await Promise.all([loadListingCount(), loadEnquiries(), loadOffers(), loadProfile()]);
   document.body.classList.add('ready');
 })();
 </script>

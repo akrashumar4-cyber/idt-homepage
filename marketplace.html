@@ -830,6 +830,7 @@ const db = createClient(SUPABASE_URL, SUPABASE_ANON);
 let currentUser = null;
 let currentRole = null;
 let activeOfferListing = null;
+let activeListing = null;
 
 window.LISTINGS = [];
 
@@ -896,24 +897,25 @@ async function loadListings() {
   window.LISTINGS = data.map(l => ({
     id: l.id,
     shape: l.shape,
-    carat: parseFloat(l.carat),
-    color: l.color,
-    clarity: l.clarity,
-    cut: l.cut || '',
+    carat: parseFloat(l.carat_weight),
+    color: l.colour_grade,
+    clarity: l.clarity_grade,
+    cut: l.cut_grade || '',
     polish: l.polish || '',
     symmetry: l.symmetry || '',
     fluorescence: l.fluorescence || '',
-    cert: l.cert,
-    certNum: l.cert_num || '',
-    origin: l.origin || '',
+    cert: l.cert_body,
+    certNum: l.cert_number || '',
+    origin: l.country_origin || '',
     type: l.diamond_type,
     seller: l.seller_name || '',
     sellerCountry: l.seller_country || '',
     pricePerCarat: parseFloat(l.price_per_carat),
-    totalPrice: parseFloat(l.total_price || l.price_per_carat * l.carat),
-    dispatch: l.dispatch || '',
+    totalPrice: parseFloat(l.total_price || l.price_per_carat * l.carat_weight),
+    dispatch: l.dispatch_time || '',
     terms: l.trade_terms || '',
-    payment: l.payment_terms || ''
+    payment: l.payment_terms || '',
+    supplierId: l.supplier_id
   }));
 
   renderListings();
@@ -923,7 +925,7 @@ function getFiltered() {
   const src = window.LISTINGS || [];
   let list = activeFilter === 'all'
     ? [...src]
-    : src.filter(l => l.type === activeFilter);
+    : src.filter(l => l.type && l.type.includes(activeFilter));
 
   if (activeSort === 'price-asc')   list.sort((a,b) => a.pricePerCarat - b.pricePerCarat);
   if (activeSort === 'price-desc')  list.sort((a,b) => b.pricePerCarat - a.pricePerCarat);
@@ -944,7 +946,7 @@ function renderListings() {
   grid.innerHTML = list.map(l => `
     <div class="listing-card">
       <div class="card-badges">
-        <span class="badge ${l.type === 'Natural' ? 'badge-natural' : 'badge-lab'}">${l.type}</span>
+        <span class="badge ${l.type && l.type.includes('Lab') ? 'badge-lab' : 'badge-natural'}">${l.type}</span>
         <span class="badge badge-cert">${l.cert}</span>
       </div>
       <div class="card-diamond-title">${l.shape} &middot; ${l.carat}ct</div>
@@ -1159,6 +1161,7 @@ document.getElementById('offer-submit-btn').addEventListener('click', async () =
 function openQuoteModal(listingId) {
   const l = (window.LISTINGS || []).find(x => x.id === listingId);
   if (!l) return;
+  activeListing = l;
 
   document.getElementById('quote-subtitle').textContent =
     `${l.shape} ${l.carat}ct — ${l.seller}`;
@@ -1178,6 +1181,7 @@ function openQuoteModal(listingId) {
 function closeQuoteModal() {
   document.getElementById('quote-modal').classList.remove('open');
   document.body.style.overflow = '';
+  activeListing = null;
 }
 
 document.getElementById('quote-modal-close').addEventListener('click', closeQuoteModal);
@@ -1186,9 +1190,48 @@ document.getElementById('quote-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('quote-modal')) closeQuoteModal();
 });
 
-document.getElementById('quote-submit-btn').addEventListener('click', () => {
+document.getElementById('quote-submit-btn').addEventListener('click', async () => {
+  const l = activeListing;
+  if (!l) return;
+
+  const contactName  = document.getElementById('quote-name').value.trim();
+  const companyName  = document.getElementById('quote-company').value.trim();
+  const email        = document.getElementById('quote-email').value.trim();
+  const qty          = document.getElementById('quote-qty').value.trim();
+  const budget       = document.getElementById('quote-budget').value.trim();
+  const notes        = document.getElementById('quote-notes').value.trim();
+
+  if (!contactName || !email) {
+    showToast('Please fill in your name and email.');
+    return;
+  }
+
+  const btn = document.getElementById('quote-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  const { error } = await db.from('enquiries').insert({
+    listing_id:    l.id,
+    buyer_id:      currentUser.id,
+    supplier_id:   l.supplierId,
+    contact_name:  contactName,
+    company_name:  companyName || null,
+    email,
+    quantity_needed: qty || null,
+    budget:        budget || null,
+    message:       notes || null,
+    status:        'new'
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Send Quote Request →';
+
   closeQuoteModal();
-  showToast('Quote request sent. IDT will contact you within 24 hours.');
+  if (error) {
+    showToast('Failed to send enquiry. Please try again.');
+  } else {
+    showToast('Quote request sent. A supplier will contact you within 24 hours.');
+  }
 });
 
 /* ── Toast ── */

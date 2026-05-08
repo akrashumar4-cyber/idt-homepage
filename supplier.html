@@ -801,6 +801,21 @@ body::before {
   </div>
 </div>
 
+<!-- Respond Modal -->
+<div class="modal-overlay" id="respond-modal">
+  <div class="modal-box modal-box-sm">
+    <button class="modal-close" id="respond-modal-close">&#215;</button>
+    <div class="modal-title" style="font-size:1.3rem;margin-bottom:6px">Respond to Enquiry</div>
+    <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:20px">Replying to: <strong id="respond-buyer-name" style="color:var(--text)"></strong></p>
+    <div class="form-group">
+      <label class="form-label">Your Response *</label>
+      <textarea class="form-textarea" id="respond-message" placeholder="Enter your response to the buyer..." rows="5"></textarea>
+    </div>
+    <button class="btn-submit" id="respond-submit-btn">Send Response</button>
+    <button class="btn-ghost" id="respond-cancel-btn">Cancel</button>
+  </div>
+</div>
+
 <!-- Delete Confirm Modal -->
 <div class="modal-overlay" id="delete-modal">
   <div class="modal-box modal-box-sm">
@@ -911,9 +926,9 @@ async function loadListings() {
           ${data.map(l => `
             <tr>
               <td style="font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--gold-light)">${l.shape}</td>
-              <td>${parseFloat(l.carat)}ct</td>
-              <td>${l.color} / ${l.clarity}</td>
-              <td>${l.cert}</td>
+              <td>${parseFloat(l.carat_weight)}ct</td>
+              <td>${l.colour_grade} / ${l.clarity_grade}</td>
+              <td>${l.cert_body}</td>
               <td style="font-variant-numeric:tabular-nums">$${parseFloat(l.price_per_carat).toLocaleString('en-US')}</td>
               <td><span class="status-badge status-${l.status || 'active'}">${l.status || 'active'}</span></td>
               <td>
@@ -933,20 +948,10 @@ async function loadListings() {
 async function loadEnquiries() {
   const content = document.getElementById('enquiries-content');
 
-  const { data: myListings } = await db
-    .from('listings').select('id').eq('supplier_id', currentUser.id);
-
-  const ids = myListings?.map(l => l.id) || [];
-
-  if (!ids.length) {
-    content.innerHTML = '<div class="empty-state">No enquiries yet.</div>';
-    return;
-  }
-
   const { data, error } = await db
-    .from('offers')
-    .select('*, listings(shape, carat, color, clarity)')
-    .in('listing_id', ids)
+    .from('enquiries')
+    .select('*, listings(shape, carat_weight, colour_grade, clarity_grade)')
+    .eq('supplier_id', currentUser.id)
     .order('created_at', { ascending: false });
 
   if (error || !data?.length) {
@@ -956,27 +961,84 @@ async function loadEnquiries() {
 
   content.innerHTML = data.map(o => {
     const l = o.listings;
-    const diamond = l ? `${l.shape} ${parseFloat(l.carat)}ct ${l.color}/${l.clarity}` : 'Diamond';
+    const diamond = l ? `${l.shape} ${parseFloat(l.carat_weight)}ct ${l.colour_grade}/${l.clarity_grade}` : 'Diamond';
     const date = new Date(o.created_at).toLocaleDateString('en-US', { day:'numeric', month:'short', year:'numeric' });
-    const statusClass = o.status === 'accepted' ? 'status-active'
-      : o.status === 'rejected' ? 'status-rejected'
+    const statusClass = o.status === 'responded' ? 'status-active'
+      : o.status === 'read' ? 'status-pending'
       : 'status-pending';
+    const statusLabel = o.status === 'responded' ? 'Responded'
+      : o.status === 'read' ? 'Viewed'
+      : 'New';
     return `
       <div class="enquiry-row">
         <div class="enquiry-main">
           <div class="enquiry-diamond">${diamond}</div>
           <div class="enquiry-meta">
-            ${o.buyer_name || o.buyer_email || 'Buyer'} · ${date}
+            ${o.contact_name || o.email || 'Buyer'} · ${date}
             ${o.message ? `<br><em style="color:var(--text-muted)">"${o.message}"</em>` : ''}
           </div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-          <div class="enquiry-amount">$${Math.round((o.total_amount || 0)).toLocaleString('en-US')}</div>
-          <span class="status-badge ${statusClass}">${o.status || 'pending'}</span>
+          <span class="status-badge ${statusClass}">${statusLabel}</span>
+          <button class="btn-action btn-edit" style="font-size:0.75rem;padding:5px 12px" onclick="openRespondModal('${o.id}', '${(o.contact_name || o.email || 'Buyer').replace(/'/g,"\\'")}', '${o.email || ''}')">Respond</button>
         </div>
       </div>`;
   }).join('');
+
+  /* mark new ones as read */
+  const newIds = data.filter(o => o.status === 'new').map(o => o.id);
+  if (newIds.length) {
+    await db.from('enquiries').update({ status: 'read' }).in('id', newIds);
+  }
 }
+
+/* ── Respond modal ── */
+let activeEnquiryId = null;
+let activeEnquiryEmail = null;
+
+function openRespondModal(enquiryId, buyerName, buyerEmail) {
+  activeEnquiryId = enquiryId;
+  activeEnquiryEmail = buyerEmail;
+  document.getElementById('respond-buyer-name').textContent = buyerName;
+  document.getElementById('respond-message').value = '';
+  document.getElementById('respond-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeRespondModal() {
+  document.getElementById('respond-modal').classList.remove('open');
+  document.body.style.overflow = '';
+  activeEnquiryId = null;
+  activeEnquiryEmail = null;
+}
+
+document.getElementById('respond-modal-close').addEventListener('click', closeRespondModal);
+document.getElementById('respond-cancel-btn').addEventListener('click', closeRespondModal);
+document.getElementById('respond-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('respond-modal')) closeRespondModal();
+});
+
+document.getElementById('respond-submit-btn').addEventListener('click', async () => {
+  if (!activeEnquiryId) return;
+  const msg = document.getElementById('respond-message').value.trim();
+  if (!msg) { showToast('Please enter a response message.', true); return; }
+
+  const btn = document.getElementById('respond-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  const { error } = await db
+    .from('enquiries')
+    .update({ status: 'responded', response_message: msg, responded_at: new Date().toISOString() })
+    .eq('id', activeEnquiryId);
+
+  btn.disabled = false;
+  btn.textContent = 'Send Response';
+
+  closeRespondModal();
+  if (error) showToast('Failed to send response.', true);
+  else { showToast('Response sent successfully.'); loadEnquiries(); }
+});
 
 /* ── Load profile ── */
 async function loadProfile() {
@@ -1044,20 +1106,20 @@ async function openEditModal(id) {
 
   const setVal = (elId, val) => { const el = document.getElementById(elId); if (el) el.value = val || ''; };
   setVal('f-shape',        data.shape);
-  setVal('f-carat',        data.carat);
-  setVal('f-color',        data.color);
-  setVal('f-clarity',      data.clarity);
-  setVal('f-cut',          data.cut);
+  setVal('f-carat',        data.carat_weight);
+  setVal('f-color',        data.colour_grade);
+  setVal('f-clarity',      data.clarity_grade);
+  setVal('f-cut',          data.cut_grade);
   setVal('f-polish',       data.polish);
   setVal('f-symmetry',     data.symmetry);
   setVal('f-fluorescence', data.fluorescence);
-  setVal('f-cert',         data.cert);
-  setVal('f-cert-num',     data.cert_num);
-  setVal('f-origin',       data.origin);
+  setVal('f-cert',         data.cert_body);
+  setVal('f-cert-num',     data.cert_number);
+  setVal('f-origin',       data.country_origin);
   setVal('f-type',         data.diamond_type);
   setVal('f-price',        data.price_per_carat);
   setVal('f-total',        data.total_price);
-  setVal('f-dispatch',     data.dispatch);
+  setVal('f-dispatch',     data.dispatch_time);
   setVal('f-terms',        data.trade_terms);
   setVal('f-payment',      data.payment_terms);
 
@@ -1114,20 +1176,20 @@ document.getElementById('listing-submit-btn').addEventListener('click', async ()
   const payload = {
     supplier_id:    currentUser.id,
     shape,
-    carat,
-    color,
-    clarity,
-    cut:           document.getElementById('f-cut').value          || null,
+    carat_weight:   carat,
+    colour_grade:   color,
+    clarity_grade:  clarity,
+    cut_grade:     document.getElementById('f-cut').value          || null,
     polish:        document.getElementById('f-polish').value        || null,
     symmetry:      document.getElementById('f-symmetry').value      || null,
     fluorescence:  document.getElementById('f-fluorescence').value  || null,
-    cert,
-    cert_num:      document.getElementById('f-cert-num').value      || null,
-    origin:        document.getElementById('f-origin').value        || null,
+    cert_body:     cert,
+    cert_number:   document.getElementById('f-cert-num').value      || null,
+    country_origin: document.getElementById('f-origin').value       || null,
     diamond_type:  document.getElementById('f-type').value,
     price_per_carat: price,
     total_price:   total,
-    dispatch:      document.getElementById('f-dispatch').value      || null,
+    dispatch_time: document.getElementById('f-dispatch').value      || null,
     trade_terms:   document.getElementById('f-terms').value         || null,
     payment_terms: document.getElementById('f-payment').value       || null,
     status: 'active'

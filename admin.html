@@ -473,6 +473,52 @@ tbody td {
     </div>
   </div>
 
+  <div class="divider"></div>
+  <div class="section-label">Enquiries</div>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Diamond</th>
+            <th>Buyer</th>
+            <th>Email</th>
+            <th>Date</th>
+            <th>Message</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="enquiries-tbody">
+          <tr><td colspan="6" class="table-empty">Loading enquiries…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Offers</div>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Diamond</th>
+            <th>Buyer</th>
+            <th>Total</th>
+            <th>Date</th>
+            <th>Escrow</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="offers-tbody">
+          <tr><td colspan="6" class="table-empty">Loading offers…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 </main>
 
 <div class="toast" id="toast"></div>
@@ -596,7 +642,7 @@ async function loadUsers() {
 // ── Auth guard + init ──
 document.getElementById('logout-btn').addEventListener('click', async () => {
   await db.auth.signOut();
-  window.location.replace('https://internationaldiamondtrade.com/login.html');
+  window.location.replace('/login.html');
 });
 
 async function getSessionWithRetry() {
@@ -633,14 +679,14 @@ async function getRoleWithRetry(session) {
   const session = await getSessionWithRetry();
 
   if (!session) {
-    window.location.replace('https://internationaldiamondtrade.com/login.html');
+    window.location.replace('/login.html');
     return;
   }
 
   const role = await getRoleWithRetry(session);
 
   if (!role) {
-    window.location.replace('https://internationaldiamondtrade.com/login.html');
+    window.location.replace('/login.html');
     return;
   }
 
@@ -652,7 +698,111 @@ async function getRoleWithRetry(session) {
   document.body.classList.add('ready');
   loadStats();
   loadUsers();
+  loadEnquiriesAdmin();
+  loadOffersAdmin();
 })();
+
+/* ── Admin: Load Enquiries ── */
+async function loadEnquiriesAdmin() {
+  const tbody = document.getElementById('enquiries-tbody');
+  if (!tbody) return;
+
+  const { data, error } = await db
+    .from('enquiries')
+    .select('*, listings(shape, carat_weight), profiles!buyer_id(company_name)')
+    .order('created_at', { ascending: false });
+
+  if (error || !data) {
+    tbody.innerHTML = `<tr><td colspan="6" class="table-empty">Failed to load enquiries.</td></tr>`;
+    return;
+  }
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="table-empty">No enquiries yet.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.map(e => {
+    const l = e.listings;
+    const diamond = l ? `${l.shape} ${parseFloat(l.carat_weight)}ct` : '—';
+    const buyer = e.profiles?.company_name || e.contact_name || e.email || '—';
+    const date = new Date(e.created_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+    return `
+      <tr>
+        <td><div class="company-name">${diamond}</div></td>
+        <td><div class="email-cell">${buyer}</div></td>
+        <td><div class="email-cell">${e.email || '—'}</div></td>
+        <td><span class="date-cell">${date}</span></td>
+        <td><div class="email-cell" style="max-width:200px;white-space:normal">${e.message || '—'}</div></td>
+        <td>
+          <select class="role-select" onchange="updateEnquiryStatus(this, '${e.id}')">
+            <option value="new" ${e.status === 'new' ? 'selected' : ''}>New</option>
+            <option value="read" ${e.status === 'read' ? 'selected' : ''}>Read</option>
+            <option value="responded" ${e.status === 'responded' ? 'selected' : ''}>Responded</option>
+          </select>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+async function updateEnquiryStatus(select, id) {
+  select.classList.add('saving');
+  const { error } = await db.from('enquiries').update({ status: select.value }).eq('id', id);
+  select.classList.remove('saving');
+  if (error) showToast('Failed to update.', true);
+  else showToast('Status updated.');
+}
+
+/* ── Admin: Load Offers ── */
+async function loadOffersAdmin() {
+  const tbody = document.getElementById('offers-tbody');
+  if (!tbody) return;
+
+  const { data, error } = await db
+    .from('offers')
+    .select('*, listings(shape, carat_weight)')
+    .order('created_at', { ascending: false });
+
+  if (error || !data) {
+    tbody.innerHTML = `<tr><td colspan="6" class="table-empty">Failed to load offers.</td></tr>`;
+    return;
+  }
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="table-empty">No offers yet.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.map(o => {
+    const l = o.listings;
+    const diamond = l ? `${l.shape} ${parseFloat(l.carat_weight)}ct` : '—';
+    const date = new Date(o.created_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+    const escrow = o.escrow_offer_url
+      ? `<a href="${o.escrow_offer_url}" target="_blank" rel="noopener" style="color:var(--gold);font-size:0.8rem">Escrow →</a>`
+      : '—';
+    return `
+      <tr>
+        <td><div class="company-name">${diamond}</div></td>
+        <td><div class="email-cell">${o.buyer_name || o.buyer_email || '—'}</div></td>
+        <td style="font-variant-numeric:tabular-nums">$${Math.round(o.total_amount || 0).toLocaleString('en-US')}</td>
+        <td><span class="date-cell">${date}</span></td>
+        <td>${escrow}</td>
+        <td>
+          <select class="role-select" onchange="updateOfferStatus(this, '${o.id}')">
+            <option value="pending"  ${o.status === 'pending'  ? 'selected' : ''}>Pending</option>
+            <option value="accepted" ${o.status === 'accepted' ? 'selected' : ''}>Accepted</option>
+            <option value="rejected" ${o.status === 'rejected' ? 'selected' : ''}>Rejected</option>
+          </select>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+async function updateOfferStatus(select, id) {
+  select.classList.add('saving');
+  const { error } = await db.from('offers').update({ status: select.value }).eq('id', id);
+  select.classList.remove('saving');
+  if (error) showToast('Failed to update.', true);
+  else showToast('Status updated.');
+}
 </script>
 </body>
 </html>
