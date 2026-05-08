@@ -102,9 +102,7 @@ body::before {
   color: var(--text-muted);
 }
 
-.header-center {
-  text-align: center;
-}
+.header-center { text-align: center; }
 
 .header-title {
   font-family: 'Cormorant Garamond', serif;
@@ -171,7 +169,6 @@ body::before {
   z-index: 1;
 }
 
-/* ── Page heading ── */
 .page-eyebrow {
   font-size: 0.68rem;
   font-weight: 500;
@@ -206,10 +203,7 @@ body::before {
   flex-wrap: wrap;
 }
 
-.filter-group {
-  display: flex;
-  gap: 8px;
-}
+.filter-group { display: flex; gap: 8px; }
 
 .btn-filter {
   background: var(--bg1);
@@ -283,12 +277,7 @@ body::before {
 }
 .listing-card:hover::before { opacity: 1; }
 
-/* Badges row */
-.card-badges {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+.card-badges { display: flex; align-items: center; gap: 8px; }
 
 .badge {
   font-size: 0.67rem;
@@ -317,7 +306,6 @@ body::before {
   border: 1px solid var(--gold-border);
 }
 
-/* Card title */
 .card-diamond-title {
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.45rem;
@@ -327,12 +315,7 @@ body::before {
   line-height: 1.2;
 }
 
-/* Spec pills */
-.spec-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
+.spec-row { display: flex; flex-wrap: wrap; gap: 6px; }
 
 .spec-pill {
   background: var(--bg2);
@@ -342,12 +325,8 @@ body::before {
   font-size: 0.76rem;
   color: var(--text-muted);
 }
-.spec-pill strong {
-  color: var(--text);
-  font-weight: 500;
-}
+.spec-pill strong { color: var(--text); font-weight: 500; }
 
-/* Cert number */
 .cert-num {
   font-size: 0.75rem;
   color: var(--text-muted);
@@ -355,7 +334,6 @@ body::before {
   font-variant-numeric: tabular-nums;
 }
 
-/* Origin row */
 .origin-row {
   font-size: 0.82rem;
   color: var(--text-muted);
@@ -365,17 +343,9 @@ body::before {
   gap: 6px;
   flex-wrap: wrap;
 }
-.origin-row strong {
-  color: var(--text);
-  font-weight: 500;
-}
+.origin-row strong { color: var(--text); font-weight: 500; }
 
-/* Price block */
-.price-block {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
+.price-block { display: flex; flex-direction: column; gap: 3px; }
 
 .price-per-ct {
   font-family: 'Cormorant Garamond', serif;
@@ -386,13 +356,8 @@ body::before {
   line-height: 1;
 }
 
-.price-total {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  font-weight: 300;
-}
+.price-total { font-size: 0.8rem; color: var(--text-muted); font-weight: 300; }
 
-/* Trade terms row */
 .terms-row {
   display: flex;
   align-items: center;
@@ -403,7 +368,6 @@ body::before {
 }
 .terms-sep { opacity: 0.3; }
 
-/* Card actions */
 .card-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -428,10 +392,7 @@ body::before {
   border: 1px solid var(--gold-border);
   color: var(--gold);
 }
-.btn-quote:hover {
-  background: var(--gold-dim);
-  border-color: var(--gold);
-}
+.btn-quote:hover { background: var(--gold-dim); border-color: var(--gold); }
 
 .btn-offer {
   background: linear-gradient(135deg, var(--gold) 0%, #a8832e 100%);
@@ -459,10 +420,7 @@ body::before {
   pointer-events: none;
   transition: opacity 0.25s;
 }
-.modal-overlay.open {
-  opacity: 1;
-  pointer-events: all;
-}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
 
 .modal-box {
   background: var(--bg1);
@@ -479,9 +437,7 @@ body::before {
   scrollbar-width: thin;
   scrollbar-color: var(--gold-border) transparent;
 }
-.modal-overlay.open .modal-box {
-  transform: translateY(0);
-}
+.modal-overlay.open .modal-box { transform: translateY(0); }
 
 .modal-close {
   position: absolute;
@@ -514,13 +470,7 @@ body::before {
   line-height: 1.5;
 }
 
-/* Form fields */
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  margin-bottom: 18px;
-}
+.form-group { display: flex; flex-direction: column; gap: 7px; margin-bottom: 18px; }
 
 .form-label {
   font-size: 0.78rem;
@@ -542,13 +492,8 @@ body::before {
   transition: border-color 0.2s;
   width: 100%;
 }
-.form-input:focus, .form-textarea:focus, .form-select:focus {
-  border-color: var(--gold-border);
-}
-.form-input[readonly] {
-  color: var(--text-muted);
-  cursor: default;
-}
+.form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--gold-border); }
+.form-input[readonly] { color: var(--text-muted); cursor: default; }
 .form-textarea { resize: vertical; min-height: 88px; }
 .form-select { appearance: none; cursor: pointer; }
 
@@ -593,13 +538,8 @@ body::before {
   justify-content: center;
   gap: 8px;
 }
-.btn-submit:hover:not(:disabled) {
-  box-shadow: 0 4px 20px rgba(201,168,76,0.35);
-}
-.btn-submit:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+.btn-submit:hover:not(:disabled) { box-shadow: 0 4px 20px rgba(201,168,76,0.35); }
+.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .btn-submit-ghost {
   width: 100%;
@@ -628,17 +568,9 @@ body::before {
   display: none;
 }
 
-/* Success screen */
-.success-screen {
-  text-align: center;
-  padding: 12px 0;
-}
+.success-screen { text-align: center; padding: 12px 0; }
 
-.success-icon {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 20px;
-}
+.success-icon { width: 64px; height: 64px; margin: 0 auto 20px; }
 
 .success-title {
   font-family: 'Cormorant Garamond', serif;
@@ -681,7 +613,6 @@ body::before {
   font-variant-numeric: tabular-nums;
 }
 
-/* Spinner */
 .spinner {
   width: 16px;
   height: 16px;
@@ -713,19 +644,8 @@ body::before {
   pointer-events: none;
 }
 .toast.show { transform: translateX(0); }
-.toast-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #4CAF7D;
-  flex-shrink: 0;
-}
-.toast-text {
-  font-size: 0.85rem;
-  color: var(--text);
-  line-height: 1.5;
-  font-weight: 300;
-}
+.toast-dot { width: 8px; height: 8px; border-radius: 50%; background: #4CAF7D; flex-shrink: 0; }
+.toast-text { font-size: 0.85rem; color: var(--text); line-height: 1.5; font-weight: 300; }
 
 /* ── Responsive ── */
 @media (max-width: 900px) {
@@ -736,9 +656,7 @@ body::before {
   .user-email { display: none; }
 }
 @media (max-width: 600px) {
-  .header {
-    grid-template-columns: auto 1fr;
-  }
+  .header { grid-template-columns: auto 1fr; }
   .header-center { display: none; }
   .modal-box { padding: 28px 20px 24px; }
   .card-actions { grid-template-columns: 1fr; }
@@ -913,16 +831,7 @@ let currentUser = null;
 let currentRole = null;
 let activeOfferListing = null;
 
-const LISTINGS = [
-  { id:'l1', shape:'Round Brilliant', carat:2.54, color:'D', clarity:'VVS1', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', fluorescence:'None', cert:'GIA', certNum:'GIA 6147711913', origin:'Botswana', type:'Natural', seller:'Al-Rashid Gems', sellerCountry:'🇦🇪 UAE', pricePerCarat:14800, totalPrice:37592, dispatch:'Immediate', terms:'FOB', payment:'100% TT Advance' },
-  { id:'l2', shape:'Oval Cut', carat:3.12, color:'E', clarity:'VS1', cut:'Excellent', polish:'Very Good', symmetry:'Very Good', fluorescence:'Faint', cert:'GIA', certNum:'GIA 2141438741', origin:'South Africa', type:'Natural', seller:'Cape Diamond Co.', sellerCountry:'🇿🇦 South Africa', pricePerCarat:11200, totalPrice:34944, dispatch:'1 Week', terms:'CIF', payment:'50/50' },
-  { id:'l3', shape:'Emerald Cut', carat:5.08, color:'F', clarity:'VVS2', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', fluorescence:'None', cert:'GIA', certNum:'GIA 5182691333', origin:'Russia', type:'Natural', seller:'Alrosa Partners', sellerCountry:'🇷🇺 Russia', pricePerCarat:9400, totalPrice:47752, dispatch:'2 Weeks', terms:'EXW', payment:'LC at Sight' },
-  { id:'l4', shape:'Princess Cut', carat:1.85, color:'G', clarity:'VS2', cut:'Very Good', polish:'Very Good', symmetry:'Good', fluorescence:'Medium', cert:'IGI', certNum:'IGI 456123789', origin:'Canada', type:'Natural', seller:'Canadian Diamond Exchange', sellerCountry:'🇨🇦 Canada', pricePerCarat:7200, totalPrice:13320, dispatch:'1 Week', terms:'DAP', payment:'100% TT Advance' },
-  { id:'l5', shape:'Cushion Brilliant', carat:4.00, color:'D', clarity:'IF', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', fluorescence:'None', cert:'IGI', certNum:'IGI 987654321', origin:'India (Lab)', type:'Lab-Grown', seller:'Radiant Grown India', sellerCountry:'🇮🇳 India', pricePerCarat:4200, totalPrice:16800, dispatch:'Immediate', terms:'FOB', payment:'50/50' },
-  { id:'l6', shape:'Pear Shape', carat:1.50, color:'H', clarity:'SI1', cut:'Very Good', polish:'Good', symmetry:'Very Good', fluorescence:'Strong', cert:'HRD', certNum:'HRD 112233445', origin:'Angola', type:'Natural', seller:'Luanda Diamond Corp', sellerCountry:'🇦🇴 Angola', pricePerCarat:5800, totalPrice:8700, dispatch:'1 Month', terms:'CIF', payment:'Net 30' },
-  { id:'l7', shape:'Round Brilliant', carat:0.75, color:'E', clarity:'VS1', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', fluorescence:'None', cert:'GIA', certNum:'GIA 7251369080', origin:'Botswana', type:'Natural', seller:'Al-Rashid Gems', sellerCountry:'🇦🇪 UAE', pricePerCarat:8600, totalPrice:6450, dispatch:'Immediate', terms:'FOB', payment:'100% TT Advance' },
-  { id:'l8', shape:'Marquise Cut', carat:2.20, color:'F', clarity:'VVS1', cut:'Excellent', polish:'Excellent', symmetry:'Excellent', fluorescence:'None', cert:'GIA', certNum:'GIA 6391274850', origin:'Zimbabwe', type:'Natural', seller:'Harare Diamond House', sellerCountry:'🇿🇼 Zimbabwe', pricePerCarat:10400, totalPrice:22880, dispatch:'2 Weeks', terms:'EXW', payment:'LC at Sight' }
-];
+window.LISTINGS = [];
 
 /* ── Auth ── */
 async function getSessionWithRetry() {
@@ -944,12 +853,10 @@ async function getRoleWithRetry(session) {
         .select('role')
         .eq('id', session.user.id)
         .single();
-
       role = profile?.role;
     }
 
     if (role) return role;
-
     await new Promise(r => setTimeout(r, 200));
   }
   return null;
@@ -967,14 +874,56 @@ function fmtUSD(n) {
   return '$' + Math.round(n).toLocaleString('en-US');
 }
 
-/* ── Render listings ── */
+/* ── Load listings from Supabase ── */
 let activeFilter = 'all';
 let activeSort   = 'price-asc';
 
+async function loadListings() {
+  const grid = document.getElementById('listing-grid');
+  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-muted)">Loading listings...</div>';
+
+  const { data, error } = await db
+    .from('listings')
+    .select('*')
+    .eq('status', 'active')
+    .order('created_at', { ascending: false });
+
+  if (error || !data?.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-muted)">No listings available at this time.</div>';
+    return;
+  }
+
+  window.LISTINGS = data.map(l => ({
+    id: l.id,
+    shape: l.shape,
+    carat: parseFloat(l.carat),
+    color: l.color,
+    clarity: l.clarity,
+    cut: l.cut || '',
+    polish: l.polish || '',
+    symmetry: l.symmetry || '',
+    fluorescence: l.fluorescence || '',
+    cert: l.cert,
+    certNum: l.cert_num || '',
+    origin: l.origin || '',
+    type: l.diamond_type,
+    seller: l.seller_name || '',
+    sellerCountry: l.seller_country || '',
+    pricePerCarat: parseFloat(l.price_per_carat),
+    totalPrice: parseFloat(l.total_price || l.price_per_carat * l.carat),
+    dispatch: l.dispatch || '',
+    terms: l.trade_terms || '',
+    payment: l.payment_terms || ''
+  }));
+
+  renderListings();
+}
+
 function getFiltered() {
+  const src = window.LISTINGS || [];
   let list = activeFilter === 'all'
-    ? [...LISTINGS]
-    : LISTINGS.filter(l => l.type === activeFilter);
+    ? [...src]
+    : src.filter(l => l.type === activeFilter);
 
   if (activeSort === 'price-asc')   list.sort((a,b) => a.pricePerCarat - b.pricePerCarat);
   if (activeSort === 'price-desc')  list.sort((a,b) => b.pricePerCarat - a.pricePerCarat);
@@ -986,6 +935,12 @@ function getFiltered() {
 function renderListings() {
   const grid = document.getElementById('listing-grid');
   const list = getFiltered();
+
+  if (!list.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-muted)">No listings match your filter.</div>';
+    return;
+  }
+
   grid.innerHTML = list.map(l => `
     <div class="listing-card">
       <div class="card-badges">
@@ -996,31 +951,27 @@ function renderListings() {
       <div class="spec-row">
         <span class="spec-pill">Color <strong>${l.color}</strong></span>
         <span class="spec-pill">Clarity <strong>${l.clarity}</strong></span>
-        <span class="spec-pill">Cut <strong>${l.cut}</strong></span>
+        ${l.cut ? `<span class="spec-pill">Cut <strong>${l.cut}</strong></span>` : ''}
       </div>
       <div class="spec-row">
-        <span class="spec-pill">Polish <strong>${l.polish}</strong></span>
-        <span class="spec-pill">Symmetry <strong>${l.symmetry}</strong></span>
-        <span class="spec-pill">Fluorescence <strong>${l.fluorescence}</strong></span>
+        ${l.polish ? `<span class="spec-pill">Polish <strong>${l.polish}</strong></span>` : ''}
+        ${l.symmetry ? `<span class="spec-pill">Symmetry <strong>${l.symmetry}</strong></span>` : ''}
+        ${l.fluorescence ? `<span class="spec-pill">Fluorescence <strong>${l.fluorescence}</strong></span>` : ''}
       </div>
-      <div class="cert-num">${l.certNum}</div>
+      ${l.certNum ? `<div class="cert-num">${l.certNum}</div>` : ''}
       <div class="origin-row">
-        <span>${l.sellerCountry}</span>
-        <span class="terms-sep">·</span>
+        ${l.sellerCountry ? `<span>${l.sellerCountry}</span><span class="terms-sep">·</span>` : ''}
         <strong>${l.seller}</strong>
-        <span class="terms-sep">·</span>
-        <span>${l.origin}</span>
+        ${l.origin ? `<span class="terms-sep">·</span><span>${l.origin}</span>` : ''}
       </div>
       <div class="price-block">
         <div class="price-per-ct">${fmtUSD(l.pricePerCarat)} <span style="font-size:0.9rem;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-weight:300">/ ct</span></div>
         <div class="price-total">Total: ${fmtUSD(l.totalPrice)}</div>
       </div>
       <div class="terms-row">
-        <span>${l.dispatch}</span>
-        <span class="terms-sep">·</span>
-        <span>${l.terms}</span>
-        <span class="terms-sep">·</span>
-        <span>${l.payment}</span>
+        ${l.dispatch ? `<span>${l.dispatch}</span>` : ''}
+        ${l.terms ? `<span class="terms-sep">·</span><span>${l.terms}</span>` : ''}
+        ${l.payment ? `<span class="terms-sep">·</span><span>${l.payment}</span>` : ''}
       </div>
       <div class="card-actions">
         <button class="btn-quote" onclick="openQuoteModal('${l.id}')">Request Quote</button>
@@ -1047,7 +998,7 @@ document.getElementById('sort-select').addEventListener('change', e => {
 
 /* ── Offer modal ── */
 function openOfferModal(listingId) {
-  const l = LISTINGS.find(x => x.id === listingId);
+  const l = (window.LISTINGS || []).find(x => x.id === listingId);
   if (!l) return;
   activeOfferListing = l;
 
@@ -1063,8 +1014,7 @@ function openOfferModal(listingId) {
 
   document.getElementById('offer-error').style.display = 'none';
   document.getElementById('offer-error').textContent   = '';
-
-  document.getElementById('offer-form-content').style.display   = '';
+  document.getElementById('offer-form-content').style.display    = '';
   document.getElementById('offer-success-content').style.display = 'none';
 
   resetSubmitBtn();
@@ -1087,31 +1037,23 @@ function updateLiveTotal() {
 
 document.getElementById('offer-price').addEventListener('input', updateLiveTotal);
 document.getElementById('offer-qty').addEventListener('input', updateLiveTotal);
-
 document.getElementById('offer-modal-close').addEventListener('click', closeOfferModal);
 document.getElementById('offer-cancel-btn').addEventListener('click', closeOfferModal);
 document.getElementById('offer-back-btn').addEventListener('click', closeOfferModal);
-
 document.getElementById('offer-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('offer-modal')) closeOfferModal();
 });
 
 function resetSubmitBtn() {
-  const btn     = document.getElementById('offer-submit-btn');
-  const label   = document.getElementById('offer-btn-label');
-  const spinner = document.getElementById('offer-spinner');
-  btn.disabled        = false;
-  label.style.display = '';
-  spinner.style.display = 'none';
+  document.getElementById('offer-submit-btn').disabled = false;
+  document.getElementById('offer-btn-label').style.display = '';
+  document.getElementById('offer-spinner').style.display = 'none';
 }
 
 function setSubmitLoading(loading) {
-  const btn     = document.getElementById('offer-submit-btn');
-  const label   = document.getElementById('offer-btn-label');
-  const spinner = document.getElementById('offer-spinner');
-  btn.disabled          = loading;
-  label.style.display   = loading ? 'none' : '';
-  spinner.style.display = loading ? 'block' : 'none';
+  document.getElementById('offer-submit-btn').disabled = loading;
+  document.getElementById('offer-btn-label').style.display = loading ? 'none' : '';
+  document.getElementById('offer-spinner').style.display = loading ? 'block' : 'none';
 }
 
 document.getElementById('offer-submit-btn').addEventListener('click', async () => {
@@ -1120,6 +1062,7 @@ document.getElementById('offer-submit-btn').addEventListener('click', async () =
   const email = document.getElementById('offer-email').value.trim();
   const price = parseFloat(document.getElementById('offer-price').value);
   const qty   = parseFloat(document.getElementById('offer-qty').value);
+  const msg   = document.getElementById('offer-message').value.trim();
 
   const errEl = document.getElementById('offer-error');
   errEl.style.display = 'none';
@@ -1132,7 +1075,7 @@ document.getElementById('offer-submit-btn').addEventListener('click', async () =
 
   setSubmitLoading(true);
 
-  const listingRef = `idt-${l.id}`;
+  const listingRef  = `idt-${l.id}`;
   const description = `${l.shape} ${l.carat}ct ${l.color}/${l.clarity} — IDT Transaction`;
   const itemTitle   = `${l.shape} ${l.carat}ct ${l.color}/${l.clarity} ${l.cut} Cut`;
   const itemDesc    = `${l.cert} certified. Origin: ${l.origin}. Seller: ${l.seller}. Arranged by International Diamond Trade.`;
@@ -1185,11 +1128,24 @@ document.getElementById('offer-submit-btn').addEventListener('click', async () =
       || data.transaction?.make_offer_page
       || '#';
 
-    document.getElementById('escrow-link').href   = makeOfferPage;
-    document.getElementById('success-ref').textContent =
-      'Transaction reference: ' + listingRef;
+    /* Save offer record to Supabase */
+    await db.from('offers').insert({
+      listing_id: l.id,
+      buyer_id: currentUser.id,
+      buyer_email: email,
+      buyer_name: name,
+      offer_price_per_carat: price,
+      quantity_carats: qty,
+      total_amount: price * qty,
+      message: msg || null,
+      escrow_transaction_id: data.id ? String(data.id) : null,
+      escrow_offer_url: makeOfferPage !== '#' ? makeOfferPage : null,
+      status: 'pending'
+    });
 
-    document.getElementById('offer-form-content').style.display   = 'none';
+    document.getElementById('escrow-link').href = makeOfferPage;
+    document.getElementById('success-ref').textContent = 'Transaction reference: ' + listingRef;
+    document.getElementById('offer-form-content').style.display    = 'none';
     document.getElementById('offer-success-content').style.display = '';
 
   } catch (err) {
@@ -1201,19 +1157,19 @@ document.getElementById('offer-submit-btn').addEventListener('click', async () =
 
 /* ── Quote modal ── */
 function openQuoteModal(listingId) {
-  const l = LISTINGS.find(x => x.id === listingId);
+  const l = (window.LISTINGS || []).find(x => x.id === listingId);
   if (!l) return;
 
   document.getElementById('quote-subtitle').textContent =
     `${l.shape} ${l.carat}ct — ${l.seller}`;
 
   const name = currentUser?.user_metadata?.company_name || currentUser?.email || '';
-  document.getElementById('quote-name').value  = name;
-  document.getElementById('quote-email').value = currentUser?.email || '';
+  document.getElementById('quote-name').value    = name;
+  document.getElementById('quote-email').value   = currentUser?.email || '';
   document.getElementById('quote-company').value = currentUser?.user_metadata?.company_name || '';
-  document.getElementById('quote-qty').value    = '';
-  document.getElementById('quote-budget').value = '';
-  document.getElementById('quote-notes').value  = '';
+  document.getElementById('quote-qty').value     = '';
+  document.getElementById('quote-budget').value  = '';
+  document.getElementById('quote-notes').value   = '';
 
   document.getElementById('quote-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -1226,7 +1182,6 @@ function closeQuoteModal() {
 
 document.getElementById('quote-modal-close').addEventListener('click', closeQuoteModal);
 document.getElementById('quote-cancel-btn').addEventListener('click', closeQuoteModal);
-
 document.getElementById('quote-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('quote-modal')) closeQuoteModal();
 });
@@ -1273,7 +1228,7 @@ function showToast(msg) {
                           '/buyer.html';
   document.getElementById('portal-btn').href = portalHref;
 
-  renderListings();
+  await loadListings();
   document.body.classList.add('ready');
 })();
 </script>

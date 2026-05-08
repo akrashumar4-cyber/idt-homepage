@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Buyer Dashboard — International Diamond Trade</title>
-<meta name="description" content="Your IDT buyer dashboard. Browse diamonds, manage enquiries and saved suppliers.">
+<meta name="description" content="Your IDT buyer dashboard. Browse diamonds, manage offers and update your profile.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,6 +26,8 @@
   --text: #E8E8F0;
   --text-muted: #8A8FAA;
   --border-sub: rgba(255,255,255,0.06);
+  --green: #4CAF7D;
+  --red: #E05555;
   --radius: 14px;
 }
 
@@ -37,7 +39,6 @@ body {
   color: var(--text);
   min-height: 100vh;
   overflow-x: hidden;
-  /* hidden until auth check passes */
   visibility: hidden;
 }
 
@@ -106,7 +107,7 @@ body::before {
 .header-right {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .badge-buyer {
@@ -120,6 +121,22 @@ body::before {
   border-radius: 20px;
   padding: 4px 12px;
 }
+
+.btn-portal {
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  border-radius: 8px;
+  color: var(--gold);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 7px 16px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+.btn-portal:hover { background: rgba(201,168,76,0.18); border-color: var(--gold); }
 
 .btn-logout {
   background: transparent;
@@ -135,7 +152,7 @@ body::before {
 }
 .btn-logout:hover { border-color: var(--gold); color: var(--gold); }
 
-/* ── Page body ── */
+/* ── Page ── */
 .page {
   max-width: 1100px;
   margin: 0 auto;
@@ -144,7 +161,6 @@ body::before {
   z-index: 1;
 }
 
-/* ── Welcome ── */
 .welcome-eyebrow {
   font-size: 0.68rem;
   font-weight: 500;
@@ -200,7 +216,7 @@ body::before {
   background: var(--bg1);
   border: 1px solid var(--gold-border);
   border-radius: var(--radius);
-  padding: 36px 32px 32px;
+  padding: 32px 28px 28px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -219,11 +235,7 @@ body::before {
   pointer-events: none;
 }
 
-.card:hover {
-  border-color: rgba(201,168,76,0.5);
-  box-shadow: 0 0 36px rgba(201,168,76,0.1);
-  transform: translateY(-3px);
-}
+.card:hover { border-color: rgba(201,168,76,0.5); box-shadow: 0 0 36px rgba(201,168,76,0.1); transform: translateY(-3px); }
 .card:hover::before { opacity: 1; }
 
 .card-icon {
@@ -252,36 +264,170 @@ body::before {
   color: var(--text-muted);
   font-weight: 300;
   line-height: 1.6;
-  flex: 1;
 }
 
-.card-soon {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+.card-count {
+  font-size: 0.8rem;
   color: var(--text-muted);
-  background: var(--bg2);
-  border: 1px solid var(--border-sub);
-  border-radius: 20px;
-  padding: 4px 12px;
+  font-weight: 300;
+  margin-top: -6px;
+}
+
+.btn-browse {
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  border-radius: 8px;
+  color: var(--gold);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.84rem;
+  font-weight: 500;
+  padding: 9px 18px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+  display: inline-block;
   width: fit-content;
 }
-.card-soon::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--gold);
-  opacity: 0.6;
+.btn-browse:hover { background: rgba(201,168,76,0.18); border-color: var(--gold); }
+
+/* ── Offers list ── */
+.offers-list {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-border) transparent;
 }
 
-/* ── Divider ── */
-.divider { height: 1px; background: var(--border-sub); margin: 48px 0 36px; }
+.offer-row {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-sub);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.offer-row:last-child { border-bottom: none; }
 
+.offer-diamond {
+  font-size: 0.84rem;
+  color: var(--text);
+  font-weight: 500;
+  line-height: 1.3;
+  flex: 1;
+  min-width: 0;
+}
+
+.offer-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+.offer-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.offer-amount {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+.status-badge {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: 20px;
+  padding: 2px 8px;
+}
+.status-pending  { color: var(--gold);  background: var(--gold-dim);               border: 1px solid var(--gold-border); }
+.status-accepted { color: var(--green); background: rgba(76,175,125,0.1);          border: 1px solid rgba(76,175,125,0.25); }
+.status-rejected { color: var(--red);   background: rgba(224,85,85,0.08);          border: 1px solid rgba(224,85,85,0.25); }
+
+.empty-note {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-weight: 300;
+  line-height: 1.6;
+  padding: 12px 0;
+}
+
+/* ── Profile form ── */
+.form-group { display: flex; flex-direction: column; gap: 7px; margin-bottom: 14px; }
+
+.form-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.form-input {
+  background: var(--bg2);
+  border: 1px solid var(--border-sub);
+  border-radius: 9px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+.form-input:focus { border-color: var(--gold-border); }
+
+.btn-save-profile {
+  background: linear-gradient(135deg, var(--gold) 0%, #a8832e 100%);
+  border: none;
+  border-radius: 9px;
+  color: var(--bg0);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.84rem;
+  font-weight: 600;
+  padding: 9px 20px;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+  width: 100%;
+  margin-top: 4px;
+}
+.btn-save-profile:hover { box-shadow: 0 4px 16px rgba(201,168,76,0.3); }
+.btn-save-profile:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 600;
+  background: var(--bg1);
+  border: 1px solid rgba(76,175,125,0.35);
+  border-radius: 10px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  max-width: 340px;
+  transform: translateX(120%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+.toast.show { transform: translateX(0); }
+.toast-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+.toast-text { font-size: 0.85rem; color: var(--text); line-height: 1.5; font-weight: 300; }
+
+/* ── Responsive ── */
 @media (max-width: 860px) {
   .cards { grid-template-columns: 1fr 1fr; }
   .header { padding: 0 20px; }
@@ -312,15 +458,15 @@ body::before {
 
   <div class="header-right">
     <span class="badge-buyer">Buyer</span>
+    <a href="/marketplace.html" class="btn-portal">Marketplace</a>
     <button class="btn-logout" id="logout-btn">Sign Out</button>
   </div>
 </header>
 
 <main class="page">
-
   <div class="welcome-eyebrow">Dashboard</div>
   <h1 class="welcome-heading" id="welcome-heading">Welcome</h1>
-  <p class="welcome-sub">Here's your IDT buyer portal. More features are on the way.</p>
+  <p class="welcome-sub">Browse certified diamonds, track your offers and manage your profile.</p>
 
   <div class="section-label">Your Tools</div>
 
@@ -338,36 +484,55 @@ body::before {
       </div>
       <div class="card-title">Browse Diamonds</div>
       <p class="card-desc">Search and filter certified natural and lab-grown diamonds from verified global suppliers.</p>
-      <button class="btn-logout" style="width:fit-content;border-radius:8px;padding:8px 18px;font-size:0.84rem;color:var(--gold);border-color:var(--gold-border);" onclick="window.location.href='/marketplace.html'">Browse Marketplace →</button>
+      <a href="/marketplace.html" class="btn-browse">Browse Marketplace →</a>
+      <div class="card-count" id="listing-count"></div>
     </div>
 
-    <!-- My Enquiries -->
+    <!-- My Offers -->
     <div class="card">
       <div class="card-icon">
         <svg viewBox="0 0 24 24">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
         </svg>
       </div>
-      <div class="card-title">My Enquiries</div>
-      <p class="card-desc">Track the status of your sourcing requests and supplier responses in one place.</p>
-      <span class="card-soon">Coming Soon</span>
+      <div class="card-title">My Offers</div>
+      <div class="offers-list" id="offers-list">
+        <div class="empty-note" style="padding:20px 0;text-align:center">Loading…</div>
+      </div>
     </div>
 
-    <!-- Saved Suppliers -->
+    <!-- Profile Settings -->
     <div class="card">
       <div class="card-icon">
         <svg viewBox="0 0 24 24">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
         </svg>
       </div>
-      <div class="card-title">Saved Suppliers</div>
-      <p class="card-desc">Keep track of your preferred suppliers and build lasting trade relationships.</p>
-      <span class="card-soon">Coming Soon</span>
+      <div class="card-title">Profile Settings</div>
+      <div class="form-group">
+        <label class="form-label">Company Name</label>
+        <input class="form-input" id="profile-company" type="text" placeholder="Your company name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">First Name</label>
+        <input class="form-input" id="profile-first" type="text" placeholder="First name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Last Name</label>
+        <input class="form-input" id="profile-last" type="text" placeholder="Last name">
+      </div>
+      <button class="btn-save-profile" id="save-profile-btn">Save Changes</button>
     </div>
 
   </div>
-
 </main>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <div class="toast-dot"></div>
+  <div class="toast-text" id="toast-text"></div>
+</div>
 
 <script>
 const SUPABASE_URL  = 'https://hlmdkhixdrowbnxgbuvy.supabase.co';
@@ -375,13 +540,9 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON);
 
-async function handleLogout() {
-  await db.auth.signOut();
-  window.location.replace('https://internationaldiamondtrade.com/login.html');
-}
+let currentUser = null;
 
-document.getElementById('logout-btn').addEventListener('click', handleLogout);
-
+/* ── Auth ── */
 async function getSessionWithRetry() {
   for (let i = 0; i < 10; i++) {
     const { data: { session } } = await db.auth.getSession();
@@ -394,58 +555,152 @@ async function getSessionWithRetry() {
 async function getRoleWithRetry(session) {
   for (let i = 0; i < 10; i++) {
     let role = session.user.user_metadata?.role;
-
     if (!role) {
       const { data: profile } = await db
-        .from('profiles')
-        .select('role')
-        .eq('id', session.user.id)
-        .single();
-
+        .from('profiles').select('role').eq('id', session.user.id).single();
       role = profile?.role;
     }
-
     if (role) return role;
-
     await new Promise(r => setTimeout(r, 200));
   }
   return null;
 }
 
+document.getElementById('logout-btn').addEventListener('click', async () => {
+  await db.auth.signOut();
+  window.location.replace('/login.html');
+});
+
+/* ── Toast ── */
+let toastTimer = null;
+function showToast(msg, error = false) {
+  const el = document.getElementById('toast');
+  el.style.borderColor = error ? 'rgba(224,85,85,0.35)' : 'rgba(76,175,125,0.35)';
+  el.querySelector('.toast-dot').style.background = error ? '#E05555' : '#4CAF7D';
+  document.getElementById('toast-text').textContent = msg;
+  el.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+/* ── Live listing count ── */
+async function loadListingCount() {
+  const { count } = await db
+    .from('listings')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'active');
+
+  const el = document.getElementById('listing-count');
+  if (count != null) el.textContent = count.toLocaleString('en-US') + ' diamond' + (count !== 1 ? 's' : '') + ' currently listed';
+}
+
+/* ── My Offers ── */
+async function loadOffers() {
+  const el = document.getElementById('offers-list');
+
+  const { data, error } = await db
+    .from('offers')
+    .select('*, listings(shape, carat, color, clarity)')
+    .eq('buyer_id', currentUser.id)
+    .order('created_at', { ascending: false });
+
+  if (error || !data?.length) {
+    el.innerHTML = `<div class="empty-note">You haven't made any offers yet.<br><a href="/marketplace.html" style="color:var(--gold);text-decoration:none">Browse the marketplace</a> to get started.</div>`;
+    return;
+  }
+
+  el.innerHTML = data.map(o => {
+    const l = o.listings;
+    const diamond = l ? `${l.shape} ${parseFloat(l.carat)}ct ${l.color}/${l.clarity}` : 'Diamond';
+    const date    = new Date(o.created_at).toLocaleDateString('en-US', { day:'numeric', month:'short' });
+    const statusClass = o.status === 'accepted' ? 'status-accepted'
+      : o.status === 'rejected' ? 'status-rejected'
+      : 'status-pending';
+    return `
+      <div class="offer-row">
+        <div>
+          <div class="offer-diamond">${diamond}</div>
+          <div class="offer-meta">${date}</div>
+        </div>
+        <div class="offer-right">
+          <div class="offer-amount">$${Math.round(o.total_amount || 0).toLocaleString('en-US')}</div>
+          <span class="status-badge ${statusClass}">${o.status || 'pending'}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ── Profile ── */
+async function loadProfile() {
+  const { data } = await db
+    .from('profiles')
+    .select('company_name, first_name, last_name')
+    .eq('id', currentUser.id)
+    .single();
+
+  if (data) {
+    document.getElementById('profile-company').value = data.company_name || '';
+    document.getElementById('profile-first').value   = data.first_name   || '';
+    document.getElementById('profile-last').value    = data.last_name    || '';
+  }
+}
+
+document.getElementById('save-profile-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('save-profile-btn');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  const { error } = await db
+    .from('profiles')
+    .update({
+      company_name: document.getElementById('profile-company').value.trim(),
+      first_name:   document.getElementById('profile-first').value.trim(),
+      last_name:    document.getElementById('profile-last').value.trim()
+    })
+    .eq('id', currentUser.id);
+
+  btn.disabled = false;
+  btn.textContent = 'Save Changes';
+
+  if (error) showToast('Error saving profile.', true);
+  else showToast('Profile saved successfully.');
+});
+
+/* ── Init ── */
 (async () => {
   const session = await getSessionWithRetry();
 
   if (!session) {
-    window.location.replace('https://internationaldiamondtrade.com/login.html');
+    window.location.replace('/login.html');
     return;
   }
 
   const role = await getRoleWithRetry(session);
 
   if (!role) {
-    window.location.replace('https://internationaldiamondtrade.com/login.html');
+    window.location.replace('/login.html');
     return;
   }
 
-  const { data: profile } = await db
-    .from('profiles')
-    .select('company_name')
-    .eq('id', session.user.id)
-    .single();
-
-  if (role && window.location.pathname === '/buyer.html' && role === 'supplier') {
+  if (role === 'supplier') {
     window.location.replace('/supplier.html');
     return;
   }
 
-  if (role && window.location.pathname === '/buyer.html' && role === 'admin') {
+  if (role === 'admin') {
     window.location.replace('/admin.html');
     return;
   }
 
-  const name = profile?.company_name || session.user.email || 'Guest';
+  currentUser = session.user;
+
+  const { data: profile } = await db
+    .from('profiles').select('company_name').eq('id', currentUser.id).single();
+
+  const name = profile?.company_name || currentUser.email || 'Guest';
   document.getElementById('welcome-heading').textContent = 'Welcome, ' + name;
 
+  await Promise.all([loadListingCount(), loadOffers(), loadProfile()]);
   document.body.classList.add('ready');
 })();
 </script>
