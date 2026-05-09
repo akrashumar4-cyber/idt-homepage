@@ -469,6 +469,55 @@ tbody td {
   font-weight: 500; padding: 5px 12px; cursor: pointer; transition: background 0.15s; white-space: nowrap;
 }
 .btn-open-chat:hover { background: rgba(201,168,76,0.2); }
+
+/* ── Progress bar (chat panel) ── */
+.stage-track { padding: 12px 20px 10px; border-bottom: 1px solid var(--border-sub); background: rgba(6,8,15,0.4); flex-shrink: 0; }
+.prog-row { display: flex; align-items: center; }
+.prog-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--bg2); border: 2px solid var(--border-sub); flex-shrink: 0; transition: all 0.25s; }
+.prog-dot.done { background: var(--gold); border-color: var(--gold); }
+.prog-dot.active { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.22); }
+.prog-conn { flex: 1; height: 2px; background: var(--border-sub); min-width: 4px; }
+.prog-conn.done { background: var(--gold); }
+.stage-lbl { font-size: 0.73rem; color: var(--text-muted); margin-top: 8px; text-align: center; line-height: 1.4; }
+
+/* ── Admin chat action bar ── */
+.admin-actions-bar { display: flex; gap: 8px; padding: 8px 20px; border-bottom: 1px solid var(--border-sub); background: rgba(6,8,15,0.3); flex-shrink: 0; }
+.admin-action-btn { background: var(--gold-dim); border: 1px solid var(--gold-border); border-radius: 7px; color: var(--gold); font-family: 'DM Sans', sans-serif; font-size: 0.76rem; font-weight: 500; padding: 5px 12px; cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+.admin-action-btn:hover { background: rgba(201,168,76,0.2); }
+.admin-inline-form { padding: 8px 20px 12px; border-bottom: 1px solid var(--border-sub); background: rgba(6,8,15,0.3); flex-shrink: 0; display: none; }
+.admin-inline-form-row { display: flex; gap: 8px; margin-top: 6px; }
+.admin-inline-lbl { font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; }
+.admin-inline-input { flex: 1; background: var(--bg2); border: 1px solid var(--border-sub); border-radius: 8px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.84rem; padding: 7px 12px; outline: none; transition: border-color 0.2s; }
+.admin-inline-input:focus { border-color: var(--gold-border); }
+.admin-inline-confirm { background: linear-gradient(135deg, var(--gold) 0%, #a8832e 100%); border: none; border-radius: 8px; color: var(--bg0); font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 600; padding: 7px 16px; cursor: pointer; white-space: nowrap; }
+.admin-inline-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Stage badge ── */
+.stage-badge { font-size: 0.65rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 20px; padding: 2px 8px; white-space: nowrap; border: 1px solid; }
+.stage-badge-new { color: var(--text-muted); background: var(--bg2); border-color: var(--border-sub); }
+.stage-badge-progress { color: var(--gold); background: var(--gold-dim); border-color: var(--gold-border); }
+.stage-badge-done { color: var(--green); background: rgba(76,175,125,0.1); border-color: rgba(76,175,125,0.25); }
+
+/* ── Stage modal ── */
+.stage-modal-overlay { position: fixed; inset: 0; background: rgba(6,8,15,0.88); backdrop-filter: blur(8px); z-index: 900; display: none; align-items: center; justify-content: center; padding: 24px; }
+.stage-modal-overlay.open { display: flex; }
+.stage-modal-box { background: var(--bg1); border: 1px solid var(--gold-border); border-radius: 14px; padding: 28px 32px 24px; width: min(400px,90vw); }
+.stage-modal-title { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; color: var(--gold-light); margin-bottom: 16px; }
+.stage-modal-label { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 6px; }
+.stage-modal-input { width: 100%; background: var(--bg2); border: 1px solid var(--border-sub); border-radius: 9px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; padding: 10px 13px; outline: none; transition: border-color 0.2s; }
+.stage-modal-input:focus { border-color: var(--gold-border); }
+.stage-modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+.stage-modal-confirm { flex: 1; background: linear-gradient(135deg, var(--gold) 0%, #a8832e 100%); border: none; border-radius: 9px; color: var(--bg0); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600; padding: 11px; cursor: pointer; }
+.stage-modal-cancel { background: transparent; border: 1px solid var(--border-sub); border-radius: 9px; color: var(--text-muted); font-family: 'DM Sans', sans-serif; font-size: 0.85rem; padding: 11px 20px; cursor: pointer; transition: border-color 0.2s; }
+.stage-modal-cancel:hover { border-color: var(--gold-border); color: var(--text); }
+
+/* ── Special messages ── */
+.msg-payment-box { background: rgba(201,168,76,0.08); border: 1px solid var(--gold-border); border-radius: 10px; padding: 12px 16px; max-width: 280px; }
+.msg-payment-lbl { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+.msg-payment-url { font-size: 0.8rem; color: var(--gold-light); word-break: break-all; }
+.msg-offer-box { background: rgba(126,200,227,0.07); border: 1px solid rgba(126,200,227,0.22); border-radius: 10px; padding: 12px 16px; max-width: 280px; }
+.msg-offer-lbl { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: #7EC8E3; margin-bottom: 4px; }
+.msg-offer-amt { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--text); line-height: 1.4; }
 </style>
 </head>
 <body>
@@ -558,11 +607,12 @@ tbody td {
             <th>Date</th>
             <th>Message</th>
             <th>Status</th>
+            <th>Stage</th>
             <th></th>
           </tr>
         </thead>
         <tbody id="enquiries-tbody">
-          <tr><td colspan="7" class="table-empty">Loading enquiries…</td></tr>
+          <tr><td colspan="8" class="table-empty">Loading enquiries…</td></tr>
         </tbody>
       </table>
     </div>
@@ -603,12 +653,37 @@ tbody td {
       </div>
       <button class="chat-close" id="chat-close">&#215;</button>
     </div>
+    <div id="chat-progress"></div>
+    <div class="admin-actions-bar" id="admin-actions-bar">
+      <button class="admin-action-btn" id="btn-set-payment">Set Payment Link</button>
+      <button class="admin-action-btn" id="btn-advance-stage">Advance Stage</button>
+    </div>
+    <div class="admin-inline-form" id="admin-inline-form">
+      <div class="admin-inline-lbl" id="admin-inline-lbl"></div>
+      <div class="admin-inline-form-row">
+        <input class="admin-inline-input" id="admin-inline-input" type="text" placeholder="">
+        <button class="admin-inline-confirm" id="admin-inline-confirm">Confirm</button>
+      </div>
+    </div>
     <div class="chat-messages" id="chat-messages">
       <div class="chat-empty">Loading messages…</div>
     </div>
     <div class="chat-input-bar">
       <input class="chat-input" id="chat-input" type="text" placeholder="Type a message as IDT Team…">
       <button class="chat-send" id="chat-send">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- Stage Detail Modal -->
+<div class="stage-modal-overlay" id="stage-modal-overlay">
+  <div class="stage-modal-box">
+    <div class="stage-modal-title" id="stage-modal-title"></div>
+    <label class="stage-modal-label" id="stage-modal-label"></label>
+    <input class="stage-modal-input" id="stage-modal-input" type="text">
+    <div class="stage-modal-btns">
+      <button class="stage-modal-confirm" id="stage-modal-confirm">Confirm</button>
+      <button class="stage-modal-cancel" id="stage-modal-cancel">Cancel</button>
     </div>
   </div>
 </div>
@@ -808,11 +883,11 @@ async function loadEnquiriesAdmin() {
     .order('created_at', { ascending: false });
 
   if (error || !data) {
-    tbody.innerHTML = `<tr><td colspan="7" class="table-empty">Failed to load enquiries.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" class="table-empty">Failed to load enquiries.</td></tr>`;
     return;
   }
   if (!data.length) {
-    tbody.innerHTML = `<tr><td colspan="7" class="table-empty">No enquiries yet.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" class="table-empty">No enquiries yet.</td></tr>`;
     return;
   }
 
@@ -837,6 +912,14 @@ async function loadEnquiriesAdmin() {
             <option value="responded" ${e.status === 'responded' ? 'selected' : ''}>Responded</option>
           </select>
         </td>
+        <td>
+          <div style="display:flex;align-items:center;gap:6px">
+            ${stageBadgeHTML(e.stage || 'enquiry_sent')}
+            <select class="role-select" style="min-width:90px;font-size:0.72rem" data-prev-stage="${e.stage || 'enquiry_sent'}" onchange="updateEnquiryStage(this,'${e.id}')">
+              ${STAGES.map((s,i) => `<option value="${s}" ${(e.stage||'enquiry_sent')===s?'selected':''}>${STAGE_SHORT[i]}</option>`).join('')}
+            </select>
+          </div>
+        </td>
         <td><button class="btn-open-chat" onclick="openAdminChatById('${e.id}')">Open Chat</button></td>
       </tr>`;
   }).join('');
@@ -848,6 +931,43 @@ async function updateEnquiryStatus(select, id) {
   select.classList.remove('saving');
   if (error) showToast('Failed to update.', true);
   else showToast('Status updated.');
+}
+
+async function updateEnquiryStage(select, enquiryId) {
+  const stage = select.value;
+  const prev = select.dataset.prevStage;
+
+  if (stage === 'offer_agreed') {
+    select.value = prev;
+    openStageModal('Set Agreed Price', 'Agreed Price (USD)', 'e.g. 25000', 'number', async (price) => {
+      const { error } = await db.from('enquiries').update({ stage, agreed_price: parseFloat(price) }).eq('id', enquiryId);
+      if (error) { showToast('Failed to update stage.', true); return; }
+      select.value = stage; select.dataset.prevStage = stage;
+      showToast('Stage set to Offer Agreed.');
+      loadEnquiriesAdmin();
+    });
+    return;
+  }
+
+  if (stage === 'payment_pending') {
+    select.value = prev;
+    openStageModal('Set Escrow Payment URL', 'Escrow URL', 'https://...', 'url', async (url) => {
+      const { error: e1 } = await db.from('enquiries').update({ stage, escrow_payment_url: url }).eq('id', enquiryId);
+      if (e1) { showToast('Failed to update stage.', true); return; }
+      await db.from('enquiry_messages').insert({ enquiry_id: enquiryId, sender_id: currentUser.id, sender_role: 'admin', message: `💳 PAYMENT LINK: ${url}` });
+      select.value = stage; select.dataset.prevStage = stage;
+      showToast('Payment link set and message sent.');
+      loadEnquiriesAdmin();
+    });
+    return;
+  }
+
+  select.classList.add('saving');
+  const { error } = await db.from('enquiries').update({ stage }).eq('id', enquiryId);
+  select.classList.remove('saving');
+  select.dataset.prevStage = stage;
+  if (error) showToast('Failed to update stage.', true);
+  else { showToast('Stage updated.'); loadEnquiriesAdmin(); }
 }
 
 /* ── Admin: Load Offers ── */
@@ -902,14 +1022,85 @@ async function updateOfferStatus(select, id) {
   else showToast('Status updated.');
 }
 
-/* ── Admin Chat Panel ── */
-let adminChatId = null;
-let adminChatPollTimer = null;
-let adminChatMsgCount = 0;
+/* ── Stage constants & helpers ── */
+const STAGES = ['enquiry_sent','under_review','offer_agreed','payment_pending','payment_received','diamond_shipped','completed'];
+const STAGE_LABELS = ['Enquiry Sent','Under Review','Offer Agreed','Payment Pending','Payment Received','Diamond Shipped','Completed'];
+const STAGE_SHORT  = ['Sent','Review','Agreed','Payment','Received','Shipped','Done'];
+
+function stageDotsHTML(stage) {
+  const si = Math.max(0, STAGES.indexOf(stage));
+  let h = '';
+  for (let i = 0; i < STAGES.length; i++) {
+    if (i > 0) h += `<div class="prog-conn${i <= si ? ' done' : ''}"></div>`;
+    const cls = i < si ? 'done' : i === si ? 'active' : '';
+    h += `<div class="prog-dot${cls ? ' '+cls : ''}"></div>`;
+  }
+  return h;
+}
+
+function updateChatProgress(stage) {
+  const el = document.getElementById('chat-progress');
+  if (!el) return;
+  const si = Math.max(0, STAGES.indexOf(stage));
+  el.innerHTML = `<div class="stage-track"><div class="prog-row">${stageDotsHTML(stage)}</div><div class="stage-lbl">${STAGE_LABELS[si] || stage}</div></div>`;
+}
+
+function stageBadgeHTML(stage) {
+  const si = Math.max(0, STAGES.indexOf(stage));
+  const cls = si === 0 ? 'stage-badge-new' : si >= 6 ? 'stage-badge-done' : 'stage-badge-progress';
+  return `<span class="stage-badge ${cls}">${STAGE_SHORT[si] || stage}</span>`;
+}
 
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+function renderAdminMsgContent(msg) {
+  const s = String(msg).trim();
+  if (s.startsWith('💳 PAYMENT LINK: ')) {
+    const url = s.slice('💳 PAYMENT LINK: '.length).trim();
+    return `<div class="msg-payment-box"><div class="msg-payment-lbl">Payment Link Set</div><div class="msg-payment-url">${escHtml(url)}</div></div>`;
+  }
+  if (s.startsWith('💎 OFFER: ')) {
+    const detail = s.slice('💎 OFFER: '.length).trim();
+    return `<div class="msg-offer-box"><div class="msg-offer-lbl">Buyer Offer</div><div class="msg-offer-amt">${escHtml(detail)}</div></div>`;
+  }
+  return `<div class="msg-bubble">${escHtml(s)}</div>`;
+}
+
+/* ── Stage modal ── */
+let stageModalCallback = null;
+function openStageModal(title, label, placeholder, inputType, callback) {
+  document.getElementById('stage-modal-title').textContent = title;
+  document.getElementById('stage-modal-label').textContent = label;
+  const inp = document.getElementById('stage-modal-input');
+  inp.placeholder = placeholder;
+  inp.type = inputType || 'text';
+  inp.value = '';
+  stageModalCallback = callback;
+  document.getElementById('stage-modal-overlay').classList.add('open');
+  setTimeout(() => inp.focus(), 100);
+}
+function closeStageModal() {
+  document.getElementById('stage-modal-overlay').classList.remove('open');
+  stageModalCallback = null;
+}
+document.getElementById('stage-modal-cancel').addEventListener('click', closeStageModal);
+document.getElementById('stage-modal-confirm').addEventListener('click', () => {
+  const val = document.getElementById('stage-modal-input').value.trim();
+  if (!val) return;
+  if (stageModalCallback) stageModalCallback(val);
+  closeStageModal();
+});
+document.getElementById('stage-modal-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); document.getElementById('stage-modal-confirm').click(); }
+});
+
+/* ── Admin Chat Panel ── */
+let adminChatId = null;
+let adminChatPollTimer = null;
+let adminChatMsgCount = 0;
+let adminInlineMode = null;
 
 function openAdminChatById(enquiryId) {
   const e = (window.adminEnquiriesData || []).find(x => x.id === enquiryId);
@@ -923,10 +1114,13 @@ function openAdminChatById(enquiryId) {
 function openAdminChat(enquiryId, title, subtitle) {
   adminChatId = enquiryId;
   adminChatMsgCount = 0;
+  adminInlineMode = null;
+  document.getElementById('admin-inline-form').style.display = 'none';
   document.getElementById('chat-title').textContent = title;
   document.getElementById('chat-subtitle').textContent = subtitle;
   document.getElementById('chat-messages').innerHTML = '<div class="chat-empty">Loading messages…</div>';
   document.getElementById('chat-input').value = '';
+  document.getElementById('chat-progress').innerHTML = '';
   document.getElementById('chat-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
   fetchAdminMessages();
@@ -939,6 +1133,8 @@ function closeAdminChat() {
   document.body.style.overflow = '';
   if (adminChatPollTimer) { clearInterval(adminChatPollTimer); adminChatPollTimer = null; }
   adminChatId = null;
+  adminInlineMode = null;
+  document.getElementById('admin-inline-form').style.display = 'none';
 }
 
 document.getElementById('chat-close').addEventListener('click', closeAdminChat);
@@ -948,12 +1144,18 @@ document.getElementById('chat-overlay').addEventListener('click', e => {
 
 async function fetchAdminMessages() {
   if (!adminChatId) return;
-  const { data, error } = await db
-    .from('enquiry_messages')
-    .select('id, sender_role, message, created_at')
-    .eq('enquiry_id', adminChatId)
-    .order('created_at', { ascending: true });
-  if (error) return;
+
+  const [msgRes, enqRes] = await Promise.all([
+    db.from('enquiry_messages').select('id,sender_role,message,created_at').eq('enquiry_id', adminChatId).order('created_at', { ascending: true }),
+    db.from('enquiries').select('stage').eq('id', adminChatId).single()
+  ]);
+
+  if (!msgRes.error && enqRes.data) {
+    updateChatProgress(enqRes.data.stage || 'enquiry_sent');
+  }
+
+  if (msgRes.error) return;
+  const data = msgRes.data;
 
   const container = document.getElementById('chat-messages');
   const atBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 80;
@@ -976,7 +1178,7 @@ async function fetchAdminMessages() {
     const time = new Date(m.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     return `<div class="${rowClass}">
       <div class="msg-sender">${sender}</div>
-      <div class="msg-bubble">${escHtml(m.message)}</div>
+      ${renderAdminMsgContent(m.message)}
       <div class="msg-time">${time}</div>
     </div>`;
   }).join('');
@@ -1004,6 +1206,80 @@ async function sendAdminMessage() {
 document.getElementById('chat-send').addEventListener('click', sendAdminMessage);
 document.getElementById('chat-input').addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAdminMessage(); }
+});
+
+/* ── Admin inline form (Set Payment Link / Advance Stage) ── */
+document.getElementById('btn-set-payment').addEventListener('click', () => {
+  const form = document.getElementById('admin-inline-form');
+  if (adminInlineMode === 'payment') { adminInlineMode = null; form.style.display = 'none'; return; }
+  adminInlineMode = 'payment';
+  document.getElementById('admin-inline-lbl').textContent = 'Escrow Payment URL';
+  const inp = document.getElementById('admin-inline-input');
+  inp.type = 'url'; inp.placeholder = 'https://...'; inp.value = '';
+  form.style.display = 'block';
+  inp.focus();
+});
+
+document.getElementById('btn-advance-stage').addEventListener('click', () => {
+  const form = document.getElementById('admin-inline-form');
+  if (adminInlineMode === 'stage') { adminInlineMode = null; form.style.display = 'none'; return; }
+  adminInlineMode = 'stage';
+  document.getElementById('admin-inline-lbl').textContent = 'Advance to Stage';
+  const inp = document.getElementById('admin-inline-input');
+  // Replace input with select
+  inp.style.display = 'none';
+  let sel = document.getElementById('admin-stage-select');
+  if (!sel) {
+    sel = document.createElement('select');
+    sel.id = 'admin-stage-select';
+    sel.className = 'admin-inline-input';
+    sel.style.flex = '1';
+    inp.parentNode.insertBefore(sel, inp);
+  }
+  sel.style.display = '';
+  sel.innerHTML = STAGES.map((s,i) => `<option value="${s}">${STAGE_LABELS[i]}</option>`).join('');
+  form.style.display = 'block';
+  sel.focus();
+});
+
+document.getElementById('admin-inline-confirm').addEventListener('click', async () => {
+  if (!adminChatId) return;
+  const btn = document.getElementById('admin-inline-confirm');
+  btn.disabled = true;
+
+  if (adminInlineMode === 'payment') {
+    const url = document.getElementById('admin-inline-input').value.trim();
+    if (!url) { btn.disabled = false; return; }
+    const { error: e1 } = await db.from('enquiries').update({ stage: 'payment_pending', escrow_payment_url: url }).eq('id', adminChatId);
+    if (!e1) {
+      await db.from('enquiry_messages').insert({ enquiry_id: adminChatId, sender_id: currentUser.id, sender_role: 'admin', message: `💳 PAYMENT LINK: ${url}` });
+      showToast('Payment link set and message sent.');
+      fetchAdminMessages();
+      loadEnquiriesAdmin();
+    } else {
+      showToast('Failed to set payment link.', true);
+    }
+  } else if (adminInlineMode === 'stage') {
+    const sel = document.getElementById('admin-stage-select');
+    const stage = sel ? sel.value : '';
+    if (!stage) { btn.disabled = false; return; }
+    const { error } = await db.from('enquiries').update({ stage }).eq('id', adminChatId);
+    if (!error) {
+      showToast('Stage updated.');
+      fetchAdminMessages();
+      loadEnquiriesAdmin();
+    } else {
+      showToast('Failed to update stage.', true);
+    }
+  }
+
+  btn.disabled = false;
+  adminInlineMode = null;
+  document.getElementById('admin-inline-form').style.display = 'none';
+  const inp = document.getElementById('admin-inline-input');
+  inp.style.display = '';
+  const sel = document.getElementById('admin-stage-select');
+  if (sel) sel.style.display = 'none';
 });
 </script>
 </body>

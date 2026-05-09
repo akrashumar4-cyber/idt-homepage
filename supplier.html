@@ -667,6 +667,29 @@ body::before {
 }
 .chat-send:hover { box-shadow: 0 4px 14px rgba(201,168,76,0.3); }
 .chat-send:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── Progress bar (chat panel) ── */
+.stage-track { padding: 12px 20px 10px; border-bottom: 1px solid var(--border-sub); background: rgba(6,8,15,0.4); flex-shrink: 0; }
+.prog-row { display: flex; align-items: center; }
+.prog-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--bg2); border: 2px solid var(--border-sub); flex-shrink: 0; transition: all 0.25s; }
+.prog-dot.done { background: var(--gold); border-color: var(--gold); }
+.prog-dot.active { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.22); }
+.prog-conn { flex: 1; height: 2px; background: var(--border-sub); min-width: 4px; }
+.prog-conn.done { background: var(--gold); }
+.stage-lbl { font-size: 0.73rem; color: var(--text-muted); margin-top: 8px; text-align: center; line-height: 1.4; }
+
+/* ── Mini progress bar (enquiry rows) ── */
+.mini-prog { display: inline-flex; align-items: center; flex-shrink: 0; margin-top: 5px; }
+.mini-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--bg2); border: 1.5px solid var(--border-sub); flex-shrink: 0; }
+.mini-dot.done { background: var(--gold); border-color: var(--gold); }
+.mini-dot.active { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 0 2px rgba(201,168,76,0.18); }
+.mini-conn { width: 10px; height: 1.5px; background: var(--border-sub); flex-shrink: 0; }
+.mini-conn.done { background: var(--gold); }
+
+/* ── Offer message box ── */
+.msg-offer-box { background: rgba(126,200,227,0.07); border: 1px solid rgba(126,200,227,0.22); border-radius: 10px; padding: 12px 16px; max-width: 280px; }
+.msg-offer-lbl { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: #7EC8E3; margin-bottom: 4px; }
+.msg-offer-amt { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--text); line-height: 1.4; }
 </style>
 </head>
 <body>
@@ -873,6 +896,7 @@ body::before {
       </div>
       <button class="chat-close" id="chat-close">&#215;</button>
     </div>
+    <div id="chat-progress"></div>
     <div class="chat-messages" id="chat-messages">
       <div class="chat-empty">Loading messages…</div>
     </div>
@@ -1036,6 +1060,8 @@ async function loadEnquiries() {
     const statusLabel = o.status === 'responded' ? 'Responded'
       : o.status === 'read' ? 'Viewed'
       : 'New';
+    const stageKey = o.stage || 'enquiry_sent';
+    const si = Math.max(0, STAGES.indexOf(stageKey));
     return `
       <div class="enquiry-row">
         <div class="enquiry-main">
@@ -1044,11 +1070,12 @@ async function loadEnquiries() {
             ${o.contact_name || o.email || 'Buyer'} · ${date}
             ${o.message ? `<br><em style="color:var(--text-muted)">"${o.message}"</em>` : ''}
           </div>
+          ${miniProgressHTML(stageKey)}
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
           <span class="status-badge ${statusClass}">${statusLabel}</span>
           <button class="btn-action btn-edit enquiry-chat-btn" style="font-size:0.75rem;padding:5px 12px"
-                  data-id="${o.id}" data-diamond="${diamond.replace(/"/g,'&quot;')}">Open Chat</button>
+                  data-id="${o.id}" data-diamond="${diamond.replace(/"/g,'&quot;')}" data-stage="${stageKey}">Open Chat</button>
         </div>
       </div>`;
   }).join('');
@@ -1065,6 +1092,56 @@ let chatEnquiryId = null;
 let chatPollTimer = null;
 let chatMsgCount = 0;
 
+const STAGES = ['enquiry_sent','under_review','offer_agreed','payment_pending','payment_received','diamond_shipped','completed'];
+const STAGE_SHORT = ['Sent','Review','Agreed','Payment','Received','Shipped','Done'];
+const STAGE_STATUS = {
+  enquiry_sent:    'Awaiting IDT review',
+  under_review:    'IDT is reviewing this enquiry',
+  offer_agreed:    'Price agreed — awaiting buyer payment',
+  payment_pending: 'Buyer completing payment',
+  payment_received:'Payment secured — please prepare shipment to IDT',
+  diamond_shipped: 'Diamond in transit to IDT',
+  completed:       'Transaction complete'
+};
+
+function stageDotsHTML(stage) {
+  const si = Math.max(0, STAGES.indexOf(stage));
+  let h = '';
+  for (let i = 0; i < STAGES.length; i++) {
+    if (i > 0) h += `<div class="prog-conn${i <= si ? ' done' : ''}"></div>`;
+    const cls = i < si ? 'done' : i === si ? 'active' : '';
+    h += `<div class="prog-dot${cls ? ' '+cls : ''}"></div>`;
+  }
+  return h;
+}
+
+function updateChatProgress(stage) {
+  const el = document.getElementById('chat-progress');
+  if (!el) return;
+  const lbl = STAGE_STATUS[stage] || '';
+  el.innerHTML = `<div class="stage-track"><div class="prog-row">${stageDotsHTML(stage)}</div>${lbl ? `<div class="stage-lbl">${lbl}</div>` : ''}</div>`;
+}
+
+function miniProgressHTML(stage) {
+  const si = Math.max(0, STAGES.indexOf(stage));
+  let h = '';
+  for (let i = 0; i < STAGES.length; i++) {
+    if (i > 0) h += `<span class="mini-conn${i <= si ? ' done' : ''}"></span>`;
+    const cls = i < si ? 'done' : i === si ? 'active' : '';
+    h += `<span class="mini-dot${cls ? ' '+cls : ''}"></span>`;
+  }
+  return `<div class="mini-prog">${h}</div>`;
+}
+
+function renderMsgContent(msg) {
+  const s = String(msg).trim();
+  if (s.startsWith('💎 OFFER: ')) {
+    const detail = s.slice('💎 OFFER: '.length).trim();
+    return `<div class="msg-offer-box"><div class="msg-offer-lbl">Buyer Offer</div><div class="msg-offer-amt">${escapeHtml(detail)}</div></div>`;
+  }
+  return `<div class="msg-bubble">${escapeHtml(s)}</div>`;
+}
+
 function escapeHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
@@ -1073,19 +1150,19 @@ document.getElementById('enquiries-content').addEventListener('click', e => {
   const btn = e.target.closest('.enquiry-chat-btn');
   if (!btn) return;
   const shortId = btn.dataset.id.slice(0, 8);
-  openEnquiryChat(btn.dataset.id, shortId, btn.dataset.diamond);
+  openEnquiryChat(btn.dataset.id, shortId, btn.dataset.diamond, btn.dataset.stage || 'enquiry_sent');
 });
 
-async function openEnquiryChat(enquiryId, shortId, diamond) {
+async function openEnquiryChat(enquiryId, shortId, diamond, stage) {
   chatEnquiryId = enquiryId;
   chatMsgCount = 0;
   document.getElementById('chat-title').textContent = `Enquiry #${shortId}`;
   document.getElementById('chat-subtitle').textContent = diamond;
   document.getElementById('chat-messages').innerHTML = '<div class="chat-empty">Loading messages…</div>';
   document.getElementById('chat-input').value = '';
+  updateChatProgress(stage || 'enquiry_sent');
   document.getElementById('chat-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
-  /* mark as read if new */
   await db.from('enquiries').update({ status: 'read' }).eq('id', enquiryId).eq('status', 'new');
   fetchChatMessages();
   if (chatPollTimer) clearInterval(chatPollTimer);
@@ -1106,12 +1183,18 @@ document.getElementById('chat-overlay').addEventListener('click', e => {
 
 async function fetchChatMessages() {
   if (!chatEnquiryId) return;
-  const { data, error } = await db
-    .from('enquiry_messages')
-    .select('id, sender_role, message, created_at')
-    .eq('enquiry_id', chatEnquiryId)
-    .order('created_at', { ascending: true });
-  if (error) return;
+
+  const [msgRes, enqRes] = await Promise.all([
+    db.from('enquiry_messages').select('id,sender_role,message,created_at').eq('enquiry_id', chatEnquiryId).order('created_at', { ascending: true }),
+    db.from('enquiries').select('stage').eq('id', chatEnquiryId).single()
+  ]);
+
+  if (!msgRes.error && enqRes.data) {
+    updateChatProgress(enqRes.data.stage || 'enquiry_sent');
+  }
+
+  if (msgRes.error) return;
+  const data = msgRes.data;
 
   const container = document.getElementById('chat-messages');
   const atBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 80;
@@ -1124,13 +1207,12 @@ async function fetchChatMessages() {
 
   container.innerHTML = data.map(m => {
     const isSelf = m.sender_role === 'supplier';
-    /* PRIVACY: buyer messages appear as IDT Team to supplier */
     const rowClass = isSelf ? 'msg-row msg-self' : 'msg-row msg-idt';
     const sender   = isSelf ? 'You' : 'IDT Team';
     const time = new Date(m.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     return `<div class="${rowClass}">
       <div class="msg-sender">${sender}</div>
-      <div class="msg-bubble">${escapeHtml(m.message)}</div>
+      ${renderMsgContent(m.message)}
       <div class="msg-time">${time}</div>
     </div>`;
   }).join('');
